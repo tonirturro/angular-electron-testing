@@ -1,7 +1,8 @@
 import { HttpClientTestingModule, HttpTestingController, TestRequest } from "@angular/common/http/testing";
-import { inject, TestBed } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 
 import { AppServicesModule } from ".";
+import { configureTestSuite } from "../../../../test/configureTestSuite";
 import { PageFields } from "../../../common/model";
 import {
     IDeleteDeviceResponse,
@@ -17,6 +18,9 @@ import { DataService } from "./data.service";
 import { LogService } from "./log.service";
 
 describe("Given a data service", () => {
+
+    configureTestSuite();
+
     const restUrl = "http://localhost:3000/REST";
     const pagesUrl = `${restUrl}/pages/`;
     const devicesUrl = `${restUrl}/devices/`;
@@ -55,31 +59,25 @@ describe("Given a data service", () => {
     const ExpectedDeviceId = 1;
     const ExpectedDeviceValue = "any";
     const ExpectedParams: IUpdateDeviceParams = { id: ExpectedDeviceId, newValue: ExpectedDeviceValue };
-    const ExpectedCapabilitiesCall = `${deviceOptionsUrl}${PageFields.PageSize}`;
 
     let service: DataService;
     let httpMock: HttpTestingController;
     let logService: LogService;
     let request: TestRequest;
 
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule, AppServicesModule],
         });
     });
 
-    beforeEach(inject(
-        [DataService, LogService, HttpTestingController], (
-            serviceToTest: DataService,
-            logServiceToMock: LogService,
-            mock: HttpTestingController) => {
-            service = serviceToTest;
-            logService = logServiceToMock;
-            httpMock = mock;
-            request = null;
-            spyOn(logService, "error");
-        }
-    ));
+    beforeEach(() => {
+        service = TestBed.get(DataService);
+        logService = TestBed.get(LogService);
+        httpMock = TestBed.get(HttpTestingController);
+        request = null;
+        spyOn(logService, "error");
+    });
 
     afterEach(() => {
         httpMock.verify();

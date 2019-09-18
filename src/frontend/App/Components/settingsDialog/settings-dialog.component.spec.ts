@@ -1,38 +1,33 @@
 import { TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
+import { TranslateFakeLoader, TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { NgbActiveModal } from "../../UiLib/modal/modal-active";
 import { ELanguages, ILanguageParam } from "../definitions";
 import { SettingsDialogComponent } from "./settings-dialog.component";
 
 describe("Given a settings dialog component", () => {
 
+    configureTestSuite();
+
     let element: Element;
     let component: SettingsDialogComponent;
     let modal: NgbActiveModal;
 
-    const translations: any = { STR_Apply: "This is a test" };
-
-    class FakeLoader implements TranslateLoader {
-        public getTranslation(lang: string): Observable<any> {
-            return of(translations);
-        }
-    }
-
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({
             declarations: [ SettingsDialogComponent ],
             imports: [
                 FormsModule,
                 TranslateModule.forRoot({
-                    loader: { provide: TranslateLoader, useClass: FakeLoader}
+                    loader: { provide: TranslateLoader, useClass: TranslateFakeLoader }
                 })
-
             ],
             providers: [ NgbActiveModal ]
-
         });
+    });
+
+    beforeEach(() => {
         const fixture = TestBed.createComponent(SettingsDialogComponent);
         modal = TestBed.get(NgbActiveModal);
         component = fixture.componentInstance;

@@ -1,10 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { CustomMatchers } from "../../../../../test/CustomMatchers";
 import { ModalDismissReasons } from "./modal-dismiss-reasons";
 import { NgbModalWindowComponent } from "./modal-window.component";
 
 describe("ngb-modal-dialog", () => {
+
+  configureTestSuite();
 
   let fixture: ComponentFixture<NgbModalWindowComponent>;
 
@@ -12,8 +15,11 @@ describe("ngb-modal-dialog", () => {
     jasmine.addMatchers(CustomMatchers);
   });
 
-  beforeEach(() => {
+  beforeAll(() => {
     TestBed.configureTestingModule({declarations: [NgbModalWindowComponent]});
+  });
+
+  beforeEach(() => {
     fixture = TestBed.createComponent(NgbModalWindowComponent);
   });
 

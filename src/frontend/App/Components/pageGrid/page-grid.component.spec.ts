@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { Observable, of, Subject } from "rxjs";
+import { TranslateFakeLoader, TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { of, Subject } from "rxjs";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { PageFields } from "../../../../common/model";
 import { ISelectableOption } from "../../../../common/rest";
 import { AppServicesModule } from "../../Services";
@@ -11,6 +12,9 @@ import { LocalizationService } from "../localization.service";
 import { PageGridComponent } from "./page-grid.component";
 
 describe("Given a page grid controller", () => {
+
+    configureTestSuite();
+
     const fakeMouseEvent: any = {
         ctrlKey: false,
         srcElement: {
@@ -19,7 +23,6 @@ describe("Given a page grid controller", () => {
             }
         }
     };
-    const translations: any = { STR_Any: "This is a test" };
     const capabilities: ISelectableOption[] = [
         {
             label: "capabilityLabel",
@@ -38,20 +41,14 @@ describe("Given a page grid controller", () => {
     let getCapabilitiesMock: jasmine.Spy;
     let localizationBroadcast: Subject<any>;
 
-    class FakeLoader implements TranslateLoader {
-        public getTranslation(lang: string): Observable<any> {
-            return of(translations);
-        }
-    }
-
-    beforeEach(async () => {
+    beforeAll(() => {
         TestBed.configureTestingModule({
             declarations: [PageGridComponent, NgbTooltipDirective ],
             imports: [
                 AppServicesModule,
                 FormsModule,
                 TranslateModule.forRoot({
-                    loader: { provide: TranslateLoader, useClass: FakeLoader }
+                    loader: { provide: TranslateLoader, useClass: TranslateFakeLoader }
                 })
             ],
             providers: [ LocalizationService ],
@@ -59,9 +56,6 @@ describe("Given a page grid controller", () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(PageGridComponent);
-        element = fixture.nativeElement;
-        component = fixture.componentInstance;
         const dataService = TestBed.get(DataService);
         updatePageMock = spyOn(dataService, "updatePageField");
         getCapabilitiesMock = spyOn(dataService, "getCapabilities");
@@ -70,6 +64,12 @@ describe("Given a page grid controller", () => {
         getLocalizedCapabilityMock = spyOn(localizationService, "getLocalizedCapability");
         getLocalizedCapabilityMock.and.returnValue(of({}));
         localizationBroadcast = localizationService.language$ as Subject<any>;
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(PageGridComponent);
+        element = fixture.nativeElement;
+        component = fixture.componentInstance;
         fixture.detectChanges();
         component.selectPage(fakeMouseEvent, selectedPage.id );
     });

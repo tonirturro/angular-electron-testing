@@ -1,9 +1,13 @@
 import { TestBed } from "@angular/core/testing";
 import { IModalSettings, NgbModalService, UserInterfaceLibModule } from "..";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { IModalDescription, ModalManagerService } from "./modal-manager.service";
 import { NgbModalRef } from "./modal-ref";
 
 describe("Given a modal manager service", () => {
+
+    configureTestSuite();
+
     const dialogName = "name";
     const dialogSettings = {
         size: "lg"
@@ -26,8 +30,11 @@ describe("Given a modal manager service", () => {
     let service: ModalManagerService;
     let openModalMock: jasmine.Spy;
 
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({ imports: [ UserInterfaceLibModule ]});
+    });
+
+    beforeEach(() => {
         service = TestBed.get(ModalManagerService);
         const modalService = TestBed.get(NgbModalService);
         openModalMock = spyOn(modalService, "open").and.returnValue(modalRef);

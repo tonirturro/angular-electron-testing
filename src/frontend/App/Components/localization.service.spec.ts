@@ -1,11 +1,14 @@
 import { TestBed } from "@angular/core/testing";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
+import { configureTestSuite } from "../../../../test/configureTestSuite";
 import { ISelectableOption } from "../../../common/rest";
 import { ELanguages } from "./definitions";
 import { LocalizationService } from "./localization.service";
 
 describe("Given a localization service", () => {
+
+    configureTestSuite();
 
     const expectedEnglishLanguageCode = "en";
     const capability: ISelectableOption = {
@@ -28,7 +31,7 @@ describe("Given a localization service", () => {
         }
     }
 
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({
             imports: [
                 TranslateModule.forRoot({
@@ -37,7 +40,9 @@ describe("Given a localization service", () => {
             ],
             providers: [ LocalizationService ]
         });
+    });
 
+    beforeEach(() => {
         service = TestBed.get(LocalizationService);
         translateService = TestBed.get(TranslateService);
         setLanguageMock = spyOn(translateService, "use").and.returnValue(of({}));

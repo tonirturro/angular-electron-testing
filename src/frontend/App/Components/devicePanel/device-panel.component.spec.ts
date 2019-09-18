@@ -1,8 +1,12 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { IDevice } from "../../../../common/rest";
 import { DevicePanelComponent } from "./device-panel.component";
 
 describe("Given a device panel component", () => {
+
+    configureTestSuite();
+
     const InitialDevices: IDevice[] = [
         { id: 0, name: "Device 1" },
         { id: 1, name: "Device 2" },
@@ -13,8 +17,11 @@ describe("Given a device panel component", () => {
     let component: DevicePanelComponent;
     let fixture: ComponentFixture<DevicePanelComponent>;
 
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({ declarations: [ DevicePanelComponent ]});
+    });
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(DevicePanelComponent);
         component = fixture.componentInstance;
         component.devices = InitialDevices;

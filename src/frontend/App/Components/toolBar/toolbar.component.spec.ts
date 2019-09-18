@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
+import { TranslateFakeLoader, TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { NgbTooltipDirective } from "../../UiLib";
 import { ToolBarComponent } from "./toolbar.component";
 
@@ -11,29 +11,24 @@ enum ButtonPosition {
 
 describe("Given a toolbar component", () => {
 
+    configureTestSuite();
+
     let element: Element;
     let component: ToolBarComponent;
     let fixture: ComponentFixture<ToolBarComponent>;
 
-    const translations: any = {
-        STR_Add_Device_Tooltip: "This is a test"
-    };
-
-    class FakeLoader implements TranslateLoader {
-        public getTranslation(lang: string): Observable<any> {
-            return of(translations);
-        }
-    }
-
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({
             declarations: [ ToolBarComponent, NgbTooltipDirective ],
             imports: [
                 TranslateModule.forRoot({
-                    loader: { provide: TranslateLoader, useClass: FakeLoader }
+                    loader: { provide: TranslateLoader, useClass: TranslateFakeLoader }
                 })
             ]
         });
+    });
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(ToolBarComponent);
         component = fixture.componentInstance;
         element = fixture.nativeElement;

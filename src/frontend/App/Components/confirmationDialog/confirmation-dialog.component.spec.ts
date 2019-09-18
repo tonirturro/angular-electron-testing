@@ -1,18 +1,24 @@
 import { TestBed } from "@angular/core/testing";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { NgbActiveModal } from "../../UiLib";
 import { ConfirmationDialogComponent } from "./confirmation-dialog.component";
 
 describe("Given a confirmation dialog component", () => {
 
+    configureTestSuite();
+
     let element: Element;
     let component: ConfirmationDialogComponent;
     let modal: NgbActiveModal;
 
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({
             declarations: [ ConfirmationDialogComponent],
             providers: [ NgbActiveModal ]
         });
+    });
+
+    beforeEach(() => {
         const fixture = TestBed.createComponent(ConfirmationDialogComponent);
         modal = TestBed.get(NgbActiveModal);
         component = fixture.componentInstance;

@@ -1,8 +1,9 @@
 import { APP_BASE_HREF } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { TranslateFakeLoader, TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { StateService, UIRouterModule } from "@uirouter/angular";
-import { Observable, of, Subject } from "rxjs";
+import { of, Subject } from "rxjs";
+import { configureTestSuite } from "../../../../test/configureTestSuite";
 import { IDevice } from "../../../common/rest";
 import { AppServicesModule } from "../Services";
 import { ApplicationService } from "../Services/application.service";
@@ -15,6 +16,8 @@ import { MainPageComponent } from "./main-page.component";
 import { ToolBarComponent } from "./toolBar/toolbar.component";
 
 describe("Given a main page component", () => {
+
+    configureTestSuite();
 
     const devices: IDevice[] = [{
         id: 1,
@@ -35,13 +38,7 @@ describe("Given a main page component", () => {
     let closeMessageSpy: jasmine.Spy;
     let closeSpy: jasmine.Spy;
 
-    class FakeLoader implements TranslateLoader {
-        public getTranslation(lang: string): Observable<any> {
-            return of({});
-        }
-    }
-
-    beforeEach(async () => {
+    beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
                 MainPageComponent,
@@ -51,7 +48,7 @@ describe("Given a main page component", () => {
             imports: [
                 AppServicesModule,
                 TranslateModule.forRoot({
-                    loader: { provide: TranslateLoader, useClass: FakeLoader}
+                    loader: { provide: TranslateLoader, useClass: TranslateFakeLoader }
                 }),
                 UIRouterModule.forRoot(),
                 UserInterfaceLibModule
@@ -64,7 +61,9 @@ describe("Given a main page component", () => {
                 }
             ]
         });
+    });
 
+    beforeEach(() => {
         fixture = TestBed.createComponent(MainPageComponent);
         element = fixture.nativeElement;
         component = fixture.componentInstance;

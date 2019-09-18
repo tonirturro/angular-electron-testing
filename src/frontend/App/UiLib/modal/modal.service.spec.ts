@@ -49,6 +49,9 @@ describe("ngb-modal", () => {
 
     beforeEach(() => {
       TestBed.configureTestingModule({imports: [NgbModalTestModule]});
+    });
+
+    beforeEach(() => {
       fixture = TestBed.createComponent(TestComponent);
     });
 
@@ -891,7 +894,10 @@ describe("ngb-modal", () => {
 
     beforeEach(() => {
       TestBed.configureTestingModule(
-          {imports: [NgbModalTestModule], providers: [{provide: NgbModalConfig, useValue: {size: "sm"}}]});
+        {imports: [NgbModalTestModule], providers: [{provide: NgbModalConfig, useValue: {size: "sm"}}]});
+    });
+
+    beforeEach(() => {
       fixture = TestBed.createComponent(TestComponent);
     });
 

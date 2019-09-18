@@ -1,27 +1,35 @@
 import { TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { IDevice } from "../../../../common/rest";
 import { AppServicesModule } from "../../Services";
 import { DataService } from "../../Services/data.service";
 import { DeviceEditComponent } from "./device-edit.component";
 
 describe("Given a device edit component", () => {
+
+    configureTestSuite();
+
     const Devices: IDevice[] = [
         { id: 0, name: "Device 1" }
     ];
     let element: Element;
     let updateDeviceNameMock: jasmine.Spy;
 
-    beforeEach(() => {
+    beforeAll(() => {
         TestBed.configureTestingModule({
             declarations: [ DeviceEditComponent ],
             imports: [ FormsModule, AppServicesModule ]
          });
+    });
 
+    beforeEach(() => {
         const dataService = TestBed.get(DataService);
         spyOnProperty(dataService, "devices", "get").and.returnValue(Devices);
         updateDeviceNameMock = spyOn(dataService, "updateDeviceName");
+    });
 
+    beforeEach(() => {
         const fixture = TestBed.createComponent(DeviceEditComponent);
         const component = fixture.componentInstance;
         component.selectedDeviceId = Devices[0].id.toString();
