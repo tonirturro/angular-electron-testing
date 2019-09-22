@@ -1,15 +1,18 @@
 import { TestBed } from "@angular/core/testing";
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { CustomMatchers } from "../../../../../test/CustomMatchers";
-import { NgbTooltipWindowComponent } from "./tooltip.component.ng2";
+import { NgbTooltipWindowComponent } from "./tooltip.component";
 
 describe("ngb-tooltip-window", () => {
 
+  configureTestSuite();
+
   // Matchers
-  beforeEach(() => {
+  beforeAll(() => {
     jasmine.addMatchers(CustomMatchers);
   });
 
-  beforeEach(() => { TestBed.configureTestingModule({ declarations: [NgbTooltipWindowComponent] }); });
+  beforeAll(() => { TestBed.configureTestingModule({ declarations: [NgbTooltipWindowComponent] }); });
 
   it("should render tooltip on top by default", () => {
     const fixture = TestBed.createComponent(NgbTooltipWindowComponent);

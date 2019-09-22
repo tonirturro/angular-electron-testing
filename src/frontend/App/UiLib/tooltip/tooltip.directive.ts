@@ -21,7 +21,7 @@ import { PopupService } from "../util/popup";
 import { PlacementArray, positionElements } from "../util/positioning";
 import { listenToTriggers } from "../util/triggers";
 import { NgbTooltipConfig } from "./tooltip-config.service";
-import { NgbTooltipWindowComponent } from "./tooltip.component.ng2";
+import { NgbTooltipWindowComponent } from "./tooltip.component";
 
 /**
  * A lightweight, extensible directive for fancy tooltip creation.

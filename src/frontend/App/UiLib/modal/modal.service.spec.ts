@@ -4,6 +4,7 @@ import {
   Injector} from "@angular/core";
 import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
+import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { CustomMatchers } from "../../../../../test/CustomMatchers";
 import { NgbModalConfig } from "./modal-config";
 import { CustomInjectorComponent } from "./test/custom-injector.component";
@@ -25,10 +26,23 @@ const NOOP = () => {};
 
 describe("ngb-modal", () => {
 
+  configureTestSuite();
+
   let fixture: ComponentFixture<TestComponent>;
 
   beforeAll(() => {
     jasmine.addMatchers(CustomMatchers);
+  });
+
+  beforeAll(() => {
+    TestBed.configureTestingModule({
+      imports: [NgbModalTestModule],
+      providers: [
+        {
+          provide: NgbModalConfig,
+          useValue: {}
+        }]
+    });
   });
 
   afterEach(() => {
@@ -46,10 +60,6 @@ describe("ngb-modal", () => {
   });
 
   describe("default configuration", () => {
-
-    beforeEach(() => {
-      TestBed.configureTestingModule({imports: [NgbModalTestModule]});
-    });
 
     beforeEach(() => {
       fixture = TestBed.createComponent(TestComponent);
@@ -893,8 +903,7 @@ describe("ngb-modal", () => {
   describe("custom global configuration", () => {
 
     beforeEach(() => {
-      TestBed.configureTestingModule(
-        {imports: [NgbModalTestModule], providers: [{provide: NgbModalConfig, useValue: {size: "sm"}}]});
+      TestBed.overrideProvider(NgbModalConfig, { useValue: {size: "sm"} });
     });
 
     beforeEach(() => {

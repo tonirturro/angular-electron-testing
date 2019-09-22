@@ -3,7 +3,7 @@ import { NgbModalBackdropComponent } from "./modal/modal-backdrop.component";
 import { ModalManagerService } from "./modal/modal-manager.service";
 import { NgbModalWindowComponent } from "./modal/modal-window.component";
 import { NgbModalService } from "./modal/modal.service";
-import { NgbTooltipWindowComponent } from "./tooltip/tooltip.component.ng2";
+import { NgbTooltipWindowComponent } from "./tooltip/tooltip.component";
 import { NgbTooltipDirective } from "./tooltip/tooltip.directive";
 
 export { NgbTooltipConfig } from "./tooltip/tooltip-config.service";

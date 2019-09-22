@@ -595,7 +595,7 @@ describe("ngb-tooltip", () => {
 
 @Component({ selector: "test-cmpt", template: `` })
 
-export class TestComponent {
+class TestComponent {
     public name = "World";
     public show = true;
 
@@ -621,5 +621,5 @@ export class TestComponent {
     template: ``
 })
 
-export class TestOnPushComponent {
+class TestOnPushComponent {
 }
