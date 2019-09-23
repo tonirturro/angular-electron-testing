@@ -1,0 +1,152 @@
+<div *ngIf="currentTest === 'test1'">
+    <div ngbTooltip="Great tip!"></div>
+</div>
+
+<div *ngIf="currentTest === 'test2'">
+    <ng-template #t>Hello, {{name}}!</ng-template>
+    <div [ngbTooltip]="t"></div>
+</div>
+
+<div *ngIf="currentTest === 'test3'">
+    <div ngbTooltip="Great tip!"
+         tooltipClass="my-custom-class"></div>
+</div>
+
+<div *ngIf="currentTest === 'test4'">
+    <div [ngbTooltip]="notExisting"></div>
+</div>
+
+<div *ngIf="currentTest === 'test5'">
+    <div [ngbTooltip]="name"></div>
+</div>
+
+<div *ngIf="currentTest === 'test6'">
+    <div [ngbTooltip]="Disabled!"
+         [disableTooltip]="true"></div>
+</div>
+
+<div *ngIf="currentTest === 'test7'">
+    <div ngbTooltip="Great tip!"></div>
+</div>
+
+<div *ngIf="currentTest === 'test8'">
+    <ng-template [ngIf]="show">
+        <div ngbTooltip="Great tip!"></div>
+    </ng-template>
+</div>
+
+<div *ngIf="currentTest === 'test9'">
+    <ng-template [ngIf]="show">
+        <div ngbTooltip="Great tip!"
+             triggers="manual"
+             #t="ngbTooltip"
+             (mouseenter)="t.open()">
+        </div>
+    </ng-template>
+</div>
+
+<div *ngIf="currentTest === 'test10'">
+    <div ngbTooltip="Great tip!"
+         placement="left"></div>
+</div>
+
+<div *ngIf="currentTest === 'test11'">
+    <div ngbTooltip="Great tip!"
+         placement="right-top"></div>
+</div>
+
+<div *ngIf="currentTest === 'test12'">
+    <div ngbTooltip="Great tip!"
+         [placement]="['left-top','top-right']"></div>
+</div>
+
+<div *ngIf="currentTest === 'test13'">
+    <div ngbTooltip="Great tip!"
+         placement="auto"></div>
+</div>
+
+<div *ngIf="currentTest === 'test14'">
+    <div ngbTooltip="Great tip!"
+         triggers="click"></div>
+</div>
+
+<div *ngIf="currentTest === 'test15'">
+    <div ngbTooltip="Great tip!"
+         triggers="mouseenter:click"></div>
+</div>
+
+<div *ngIf="currentTest === 'test16'">
+    <div ngbTooltip="Great tip!"
+         triggers="mouseenter:mouseleave click"></div>
+</div>
+
+<div *ngIf="currentTest === 'test17'">
+    <div ngbTooltip="Great tip!"
+         triggers="manual"></div>
+</div>
+
+<div *ngIf="currentTest === 'test18'">
+    <div ngbTooltip="Great tip!"
+         triggers="manual"
+         #t="ngbTooltip"></div>
+    <button (click)="t.toggle()">T</button>
+</div>
+
+<div *ngIf="currentTest === 'test19'">
+    <div ngbTooltip="Great tip!"
+         triggers="manual"
+         #t="ngbTooltip"></div>
+    <button (click)="t.open()">O</button>
+    <button (click)="t.close()">C</button>
+</div>
+
+<div *ngIf="currentTest === 'test20'">
+    <div ngbTooltip="Great tip!"
+         triggers="manual"
+         #t="ngbTooltip"></div>
+    <button (click)="t.open()">O</button>
+</div>
+
+<div *ngIf="currentTest === 'test21'">
+    <div ngbTooltip="Great tip!"
+         triggers="manual"
+         #t="ngbTooltip"></div>
+    <button (click)="t.close()">C</button>
+</div>
+
+<div *ngIf="currentTest === 'test22'">
+    <div ngbTooltip="Great tip!"
+         container="body"></div>
+</div>
+
+<div *ngIf="currentTest === 'test23'">
+    <div *ngIf="show"
+         ngbTooltip="Great tip!"
+         container="body"></div>
+</div>
+
+<div *ngIf="currentTest === 'test24'">
+    <div ngbTooltip="Great tip!"
+         triggers="click"
+         (shown)="shown()"
+         (hidden)="hidden()"></div>
+</div>
+
+<div *ngIf="currentTest === 'test25'">
+    <div ngbTooltip="Great tip!"
+         triggers="manual"
+         (shown)="shown()"
+         (hidden)="hidden()"></div>
+</div>
+
+<div *ngIf="currentTest === 'test26'">
+    <div ngbTooltip="Great tip!"
+         triggers="manual"></div>
+</div>
+
+<div *ngIf="currentTest === 'test27'">
+    <ng-template #tpl>
+        <div ngbTooltip="Great tip!"></div>
+    </ng-template>
+    <button (click)="createAndDestroyTplWithATooltip(tpl)"></button>
+</div>
