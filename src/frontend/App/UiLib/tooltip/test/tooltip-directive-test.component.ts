@@ -1,5 +1,5 @@
 import { Component, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
-import { NgbTooltipDirective } from "../..";
+import { NgbTooltipDirective } from "../tooltip.directive";
 
 @Component({
   selector: "test-cmpt",
@@ -11,7 +11,8 @@ export class TooltipDirectiveTestComponent {
   public show = true;
   public currentTest: string;
 
-  @ViewChild(NgbTooltipDirective) public tooltip: NgbTooltipDirective;
+  @ViewChild("test1Tooltip") public tooltip: NgbTooltipDirective;
+  @ViewChild("test24Tooltip") public tooltipReport: NgbTooltipDirective;
 
   constructor(private vcRef: ViewContainerRef) { }
 

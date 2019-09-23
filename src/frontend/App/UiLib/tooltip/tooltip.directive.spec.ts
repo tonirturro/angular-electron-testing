@@ -1,15 +1,7 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    TemplateRef,
-    ViewChild,
-    ViewContainerRef
-} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { BrowserDynamicTestingModule } from "@angular/platform-browser-dynamic/testing";
 
-import { UserInterfaceLibModule } from "..";
 import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { CustomMatchers } from "../../../../../test/CustomMatchers";
 import { TooltipDirectiveTestComponent } from "./test/tooltip-directive-test.component";
@@ -22,7 +14,6 @@ describe("ngb-tooltip", () => {
     configureTestSuite();
 
     let testFixture: ComponentFixture<TooltipDirectiveTestComponent>;
-    let testComponent: TooltipDirectiveTestComponent;
 
     // Matchers
     beforeAll(() => {
@@ -45,23 +36,17 @@ describe("ngb-tooltip", () => {
 
     beforeEach(() => {
         testFixture = TestBed.createComponent(TooltipDirectiveTestComponent);
-        testComponent = testFixture.componentInstance;
-
         testFixture.detectChanges();
     });
 
-    beforeAll(() => NgbTooltipDirective.nextId = 0);
-    afterAll(() => NgbTooltipDirective.nextId = 0);
+    beforeEach(() => NgbTooltipDirective.nextId = 0);
 
     function getWindow(element) { return element.querySelector("ngb-tooltip-window"); }
 
     describe("basic functionality", () => {
 
         it("should open and close a tooltip - default settings and content as string", () => {
-            testComponent.currentTest = "test1";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test1"));
             const defaultConfig = new NgbTooltipConfig();
 
             directive.triggerEventHandler("mouseenter", {});
@@ -82,10 +67,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should open and close a tooltip - default settings and content from a template", () => {
-            testComponent.currentTest = "test2";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test2"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -105,10 +87,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should open and close a tooltip - default settings and custom class", () => {
-            testComponent.currentTest = "test3";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test3"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -128,10 +107,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should not open a tooltip if content is falsy", () => {
-            testComponent.currentTest = "test4";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test4"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -141,10 +117,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should close the tooltip tooltip if content becomes falsy", () => {
-            testComponent.currentTest = "test5";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test5"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -156,10 +129,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should not open a tooltip if [disableTooltip] flag", () => {
-            testComponent.currentTest = "test6";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test6"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -169,10 +139,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should allow re-opening previously closed tooltips", () => {
-            testComponent.currentTest = "test7";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test7"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -188,10 +155,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should not leave dangling tooltips in the DOM", () => {
-            testComponent.currentTest = "test8";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test8"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -203,10 +167,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should properly cleanup tooltips with manual triggers", () => {
-            testComponent.currentTest = "test9";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test9"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -220,10 +181,7 @@ describe("ngb-tooltip", () => {
         describe("positioning", () => {
 
             it("should use requested position", () => {
-                testComponent.currentTest = "test10";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test10"));
 
                 directive.triggerEventHandler("mouseenter", {});
                 testFixture.detectChanges();
@@ -235,10 +193,7 @@ describe("ngb-tooltip", () => {
             });
 
             it("should have proper arrow placement", () => {
-                testComponent.currentTest = "test11";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test11"));
 
                 directive.triggerEventHandler("mouseenter", {});
                 testFixture.detectChanges();
@@ -251,10 +206,7 @@ describe("ngb-tooltip", () => {
             });
 
             it("should accept placement in array(second value of the array should be applied)", () => {
-                testComponent.currentTest = "test12";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test12"));
 
                 directive.triggerEventHandler("mouseenter", {});
                 testFixture.detectChanges();
@@ -267,10 +219,7 @@ describe("ngb-tooltip", () => {
             });
 
             it("should apply auto placement", () => {
-                testComponent.currentTest = "test13";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test13"));
 
                 directive.triggerEventHandler("mouseenter", {});
                 testFixture.detectChanges();
@@ -287,10 +236,7 @@ describe("ngb-tooltip", () => {
         describe("triggers", () => {
 
             it("should support toggle triggers", () => {
-                testComponent.currentTest = "test14";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test14"));
 
                 directive.triggerEventHandler("click", {});
                 testFixture.detectChanges();
@@ -302,10 +248,7 @@ describe("ngb-tooltip", () => {
             });
 
             it("should non-default toggle triggers", () => {
-                testComponent.currentTest = "test15";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test15"));
 
                 directive.triggerEventHandler("mouseenter", {});
                 testFixture.detectChanges();
@@ -317,10 +260,7 @@ describe("ngb-tooltip", () => {
             });
 
             it("should support multiple triggers", () => {
-                testComponent.currentTest = "test16";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test16"));
 
                 directive.triggerEventHandler("mouseenter", {});
                 testFixture.detectChanges();
@@ -332,10 +272,7 @@ describe("ngb-tooltip", () => {
             });
 
             it("should not use default for manual triggers", () => {
-                testComponent.currentTest = "test17";
-                testFixture.detectChanges();
-
-                const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+                const directive = testFixture.debugElement.query(By.css("#test17"));
 
                 directive.triggerEventHandler("mouseenter", {});
                 testFixture.detectChanges();
@@ -343,10 +280,7 @@ describe("ngb-tooltip", () => {
             });
 
             it("should allow toggling for manual triggers", () => {
-                testComponent.currentTest = "test18";
-                testFixture.detectChanges();
-
-                const button = testFixture.nativeElement.querySelector("button");
+                const button = testFixture.nativeElement.querySelector("#test18");
 
                 button.click();
                 testFixture.detectChanges();
@@ -358,43 +292,29 @@ describe("ngb-tooltip", () => {
             });
 
             it("should allow open / close for manual triggers", () => {
-                testComponent.currentTest = "test19";
-                testFixture.detectChanges();
-
-                const buttons = testFixture.nativeElement.querySelectorAll("button");
-
-                buttons[0].click();  // open
-                testFixture.detectChanges();
+                const open = testFixture.nativeElement.querySelector("#test19-open");
+                open.click();
                 expect(getWindow(testFixture.nativeElement)).not.toBeNull();
 
-                buttons[1].click();  // close
-                testFixture.detectChanges();
+                const close = testFixture.nativeElement.querySelector("#test19-close");
+                close.click();
                 expect(getWindow(testFixture.nativeElement)).toBeNull();
             });
 
             it("should not throw when open called for manual triggers and open tooltip", () => {
-                testComponent.currentTest = "test20";
-                testFixture.detectChanges();
+                const open = testFixture.nativeElement.querySelector("#test20-open");
 
-                const button = testFixture.nativeElement.querySelector("button");
-
-                button.click();  // open
-                testFixture.detectChanges();
+                open.click();
                 expect(getWindow(testFixture.nativeElement)).not.toBeNull();
 
-                button.click();  // open
-                testFixture.detectChanges();
+                open.click();
                 expect(getWindow(testFixture.nativeElement)).not.toBeNull();
             });
 
             it("should not throw when closed called for manual triggers and closed tooltip", () => {
-                testComponent.currentTest = "test21";
-                testFixture.detectChanges();
+                const close = testFixture.nativeElement.querySelector("#test21-close");
+                close.click();
 
-                const button = testFixture.nativeElement.querySelector("button");
-
-                button.click();  // close
-                testFixture.detectChanges();
                 expect(getWindow(testFixture.nativeElement)).toBeNull();
             });
         });
@@ -403,10 +323,7 @@ describe("ngb-tooltip", () => {
     describe("container", () => {
 
         it("should be appended to the element matching the selector passed to \"container\"", () => {
-            testComponent.currentTest = "test22";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test22"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -415,10 +332,7 @@ describe("ngb-tooltip", () => {
         });
 
         it("should properly destroy tooltips when the \"container\" option is used", () => {
-            testComponent.currentTest = "test23";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test23"));
 
             directive.triggerEventHandler("mouseenter", {});
             testFixture.detectChanges();
@@ -432,10 +346,7 @@ describe("ngb-tooltip", () => {
 
     describe("visibility", () => {
         it("should emit events when showing and hiding tooltip", () => {
-            testComponent.currentTest = "test24";
-            testFixture.detectChanges();
-
-            const directive = testFixture.debugElement.query(By.directive(NgbTooltipDirective));
+            const directive = testFixture.debugElement.query(By.css("#test24"));
 
             const shownSpy = spyOn(testFixture.componentInstance, "shown");
             const hiddenSpy = spyOn(testFixture.componentInstance, "hidden");
@@ -452,36 +363,24 @@ describe("ngb-tooltip", () => {
         });
 
         it("should not emit close event when already closed", () => {
-            testComponent.currentTest = "test25";
-            testFixture.detectChanges();
-
             const shownSpy = spyOn(testFixture.componentInstance, "shown");
             const hiddenSpy = spyOn(testFixture.componentInstance, "hidden");
 
-            testFixture.componentInstance.tooltip.open();
-            testFixture.detectChanges();
+            testFixture.componentInstance.tooltipReport.open();
+            testFixture.componentInstance.tooltipReport.open();
 
-            testFixture.componentInstance.tooltip.open();
-            testFixture.detectChanges();
-
-            expect(getWindow(testFixture.nativeElement)).not.toBeNull();
-            expect(shownSpy).toHaveBeenCalled();
-            expect(shownSpy.calls.count()).toEqual(1);
+            expect(shownSpy).toHaveBeenCalledTimes(1);
             expect(hiddenSpy).not.toHaveBeenCalled();
+            expect(getWindow(testFixture.nativeElement)).not.toBeNull();
         });
 
         it("should report correct visibility", () => {
-            testComponent.currentTest = "test26";
-            testFixture.detectChanges();
-
             expect(testFixture.componentInstance.tooltip.isOpen()).toBeFalsy();
 
             testFixture.componentInstance.tooltip.open();
-            testFixture.detectChanges();
             expect(testFixture.componentInstance.tooltip.isOpen()).toBeTruthy();
 
             testFixture.componentInstance.tooltip.close();
-            testFixture.detectChanges();
             expect(testFixture.componentInstance.tooltip.isOpen()).toBeFalsy();
         });
     });
@@ -495,12 +394,11 @@ describe("ngb-tooltip", () => {
             config.triggers = "click";
             config.container = "body";
             config.tooltipClass = "my-custom-class";
+
+            testFixture = TestBed.createComponent(TooltipDirectiveTestComponent);
         });
 
         it("should initialize inputs with provided config", () => {
-            testComponent.currentTest = "test1";
-            testFixture.detectChanges();
-
             const tooltip = testFixture.componentInstance.tooltip;
 
             expect(tooltip.placement).toBe(config.placement);
@@ -517,10 +415,7 @@ describe("ngb-tooltip", () => {
          * See discussion in https://github.com/ng-bootstrap/ng-bootstrap/issues/2199 for more details.
          */
         it("should not try to call listener cleanup function when no listeners registered", () => {
-            testComponent.currentTest = "test27";
-            testFixture.detectChanges();
-
-            const buttonEl = testFixture.debugElement.query(By.css("button"));
+            const buttonEl = testFixture.debugElement.query(By.css("#createAndDestroy"));
             buttonEl.triggerEventHandler("click", {});
         });
     });
