@@ -9,10 +9,10 @@ import { NgbTooltipDirective } from "../tooltip.directive";
 export class TooltipDirectiveTestComponent {
   public name = "World";
   public show = true;
-  public currentTest: string;
+  public placement: any = "auto";
 
-  @ViewChild("test1Tooltip") public tooltip: NgbTooltipDirective;
-  @ViewChild("test24Tooltip") public tooltipReport: NgbTooltipDirective;
+  @ViewChild("basicTooltip") public tooltip: NgbTooltipDirective;
+  @ViewChild("emitEventsTooltip") public tooltipReport: NgbTooltipDirective;
 
   constructor(private vcRef: ViewContainerRef) { }
 

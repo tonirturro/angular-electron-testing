@@ -1,28 +1,30 @@
-<div id="test1" ngbTooltip="Great tip!" #test1Tooltip="ngbTooltip"></div>
+<div id="basic" 
+     ngbTooltip="Great tip!"
+     (shown)="shown()"
+     (hidden)="hidden()"
+     #basicTooltip="ngbTooltip"></div>
 
 <ng-template #t>Hello, {{name}}!</ng-template>
-<div id="test2" [ngbTooltip]="t"></div>
+<div id="template" [ngbTooltip]="t"></div>
 
-<div id="test3" 
+<div id="customClass" 
      ngbTooltip="Great tip!"
      tooltipClass="my-custom-class"></div>
 
-<div id="test4" [ngbTooltip]="notExisting"></div>
+<div id="undefined" [ngbTooltip]="notExisting"></div>
 
-<div id="test5" [ngbTooltip]="name"></div>
+<div id="binded" [ngbTooltip]="name"></div>
 
-<div id="test6" 
-     [ngbTooltip]="Disabled!"
+<div id="disabled" 
+     ngbTooltip="Disabled!"
      [disableTooltip]="true"></div>
 
-<div id="test7" ngbTooltip="Great tip!"></div>
-
 <ng-template [ngIf]="show">
-    <div id="test8" ngbTooltip="Great tip!"></div>
+    <div id="inTemplate" ngbTooltip="Great tip!"></div>
 </ng-template>
 
 <ng-template [ngIf]="show">
-    <div id="test9" 
+    <div id="inTemplateWithTriggers" 
             ngbTooltip="Great tip!"
             triggers="manual"
             #t="ngbTooltip"
@@ -30,74 +32,41 @@
     </div>
 </ng-template>
 
-<div id="test10" 
+<div id="placement" 
      ngbTooltip="Great tip!"
-     placement="left"></div>
+     [placement]="placement"></div>
 
-<div id="test11"
-     ngbTooltip="Great tip!"
-     placement="right-top"></div>
-
-<div id="test12" 
-     ngbTooltip="Great tip!"
-     [placement]="['left-top','top-right']"></div>
-
-<div id="test13" 
-     ngbTooltip="Great tip!"
-     placement="auto"></div>
-
-<div id="test14" 
+<div id="triggerStandard" 
      ngbTooltip="Great tip!"
      triggers="click"></div>
 
-<div id="test15" 
+<div id="triggerNoStandard" 
      ngbTooltip="Great tip!"
      triggers="mouseenter:click"></div>
 
-<div id="test16" 
+<div id="triggerMultiple" 
      ngbTooltip="Great tip!"
      triggers="mouseenter:mouseleave click"></div>
 
-<div id="test17"
+<div id="triggerManual"
      ngbTooltip="Great tip!"
-     triggers="manual"></div>
-
-<div ngbTooltip="Great tip!"
-        triggers="manual"
-        #t1="ngbTooltip"></div>
-<button id="test18" (click)="t1.toggle()">T</button>
-
-<div ngbTooltip="Great tip!"
      triggers="manual"
-     #t2="ngbTooltip"></div>
-<button id="test19-open" (click)="t2.open()">O</button>
-<button id="test19-close"(click)="t2.close()">C</button>
+     #t1="ngbTooltip"></div>
+<button id="triggerManualTroggle" (click)="t1.toggle()">T</button>
+<button id="triggerManualOpen" (click)="t1.open()">O</button>
+<button id="triggerManualClose"(click)="t1.close()">C</button>
 
-<div ngbTooltip="Great tip!"
-     triggers="manual"
-     #t3="ngbTooltip"></div>
-<button id="test20-open" (click)="t3.open()">O</button>
-
-<div ngbTooltip="Great tip!"
-     triggers="manual"
-     #t4="ngbTooltip"></div>
-<button id="test21-close" (click)="t4.close()">C</button>
-
-<div id="test22"
+<div id="bodyContainer"
+    *ngIf="show"
      ngbTooltip="Great tip!"
      container="body"></div>
 
-<div *ngIf="show"
-      id="test23"
-      ngbTooltip="Great tip!"
-      container="body"></div>
-
-<div id="test24"
+<div id="emitEvents"
      ngbTooltip="Great tip!"
      triggers="click"
      (shown)="shown()"
      (hidden)="hidden()"
-     #test24Tooltip="ngbTooltip"></div>
+     #emitEventsTooltip="ngbTooltip"></div>
 
 <ng-template #tpl>
         <div ngbTooltip="Great tip!"></div>
