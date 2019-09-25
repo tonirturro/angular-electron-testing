@@ -1,8 +1,12 @@
-import { TestBed } from "@angular/core/testing";
-import { IModalSettings, NgbModalService, UserInterfaceLibModule } from "..";
+import { IModalSettings } from "..";
 import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { IModalDescription, ModalManagerService } from "./modal-manager.service";
 import { NgbModalRef } from "./modal-ref";
+
+class ModalServiceMock {
+    // tslint:disable-next-line: no-empty
+    public open() {}
+}
 
 describe("Given a modal manager service", () => {
 
@@ -30,14 +34,10 @@ describe("Given a modal manager service", () => {
     let service: ModalManagerService;
     let openModalMock: jasmine.Spy;
 
-    beforeAll(() => {
-        TestBed.configureTestingModule({ imports: [ UserInterfaceLibModule ]});
-    });
-
     beforeEach(() => {
-        service = TestBed.get(ModalManagerService);
-        const modalService = TestBed.get(NgbModalService);
+        const modalService = new ModalServiceMock();
         openModalMock = spyOn(modalService, "open").and.returnValue(modalRef);
+        service = new ModalManagerService(modalService as any);
     });
 
     it("Is instantiated", () => {

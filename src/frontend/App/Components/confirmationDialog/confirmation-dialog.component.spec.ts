@@ -13,7 +13,7 @@ describe("Given a confirmation dialog component", () => {
 
     beforeAll(() => {
         TestBed.configureTestingModule({
-            declarations: [ ConfirmationDialogComponent],
+            declarations: [ ConfirmationDialogComponent ],
             providers: [ NgbActiveModal ]
         });
     });

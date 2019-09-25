@@ -2,8 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { IDevice } from "../../../../common/rest";
-import { AppServicesModule } from "../../Services";
 import { DataService } from "../../Services/data.service";
+import { DataServiceMock } from "../../Services/data.service.mock";
 import { DeviceEditComponent } from "./device-edit.component";
 
 describe("Given a device edit component", () => {
@@ -19,7 +19,10 @@ describe("Given a device edit component", () => {
     beforeAll(() => {
         TestBed.configureTestingModule({
             declarations: [ DeviceEditComponent ],
-            imports: [ FormsModule, AppServicesModule ]
+            imports: [ FormsModule ],
+            providers: [
+                { provide: DataService, useClass: DataServiceMock }
+            ]
          });
     });
 

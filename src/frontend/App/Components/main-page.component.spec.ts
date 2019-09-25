@@ -1,19 +1,41 @@
-import { APP_BASE_HREF } from "@angular/common";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslateFakeLoader, TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { StateService, UIRouterModule } from "@uirouter/angular";
+import { StateService } from "@uirouter/angular";
 import { of, Subject } from "rxjs";
 import { configureTestSuite } from "../../../../test/configureTestSuite";
 import { IDevice } from "../../../common/rest";
-import { AppServicesModule } from "../Services";
 import { ApplicationService } from "../Services/application.service";
 import { DataService } from "../Services/data.service";
-import { ModalManagerService, UserInterfaceLibModule } from "../UiLib";
+import { DataServiceMock } from "../Services/data.service.mock";
+import { LogService } from "../Services/log.service";
+import { ModalManagerService } from "../UiLib";
 import { ELanguages, EModals, IDeviceSelection, ILanguageParam, IMessageParam } from "./definitions";
-import { DevicePanelComponent } from "./devicePanel/device-panel.component";
 import { LocalizationService } from "./localization.service";
+import { LocalizationServiceMock } from "./localization.service.mock";
 import { MainPageComponent } from "./main-page.component";
-import { ToolBarComponent } from "./toolBar/toolbar.component";
+
+// tslint:disable: max-classes-per-file
+@Component({ selector: "toolbar", template: ``})
+class ToolFakeBarComponent {
+    @Input() public editingDevices: boolean;
+    @Output() public onAddDevice = new EventEmitter<any>();
+    @Output() public onEditDevices = new EventEmitter<any>();
+    @Output() public onEditPages = new EventEmitter<any>();
+    @Output() public onSettings = new EventEmitter<any>();
+    @Output() public onClose = new EventEmitter<any>();
+}
+@Component({ selector: "device-panel", template: ``})
+class DevicePanelFakeComponent {
+    @Input() public devices: [];
+    @Input() public selectedDeviceId: number;
+    @Output() public onDeleteDevice = new EventEmitter<number>();
+    @Output() public onSelectedDevice = new EventEmitter<number>();
+}
+@Component({ selector: "ui-view", template: ``})
+class UiViewFakeComponent {
+}
+// tslint:disable-next-line: no-empty
+function NOOP() {}
 
 describe("Given a main page component", () => {
 
@@ -42,23 +64,17 @@ describe("Given a main page component", () => {
         TestBed.configureTestingModule({
             declarations: [
                 MainPageComponent,
-                ToolBarComponent,
-                DevicePanelComponent
-            ],
-            imports: [
-                AppServicesModule,
-                TranslateModule.forRoot({
-                    loader: { provide: TranslateLoader, useClass: TranslateFakeLoader }
-                }),
-                UIRouterModule.forRoot(),
-                UserInterfaceLibModule
+                ToolFakeBarComponent,
+                DevicePanelFakeComponent,
+                UiViewFakeComponent
             ],
             providers: [
-                LocalizationService,
-                {
-                    provide: APP_BASE_HREF,
-                    useValue : "/"
-                }
+                { provide: LogService, useValue: { info: NOOP }},
+                { provide: ApplicationService, useValue: { close: NOOP }},
+                { provide: StateService, useValue: { go: NOOP }},
+                { provide: DataService, useClass: DataServiceMock },
+                { provide: ModalManagerService, useValue: { push: NOOP }},
+                { provide: LocalizationService, useClass: LocalizationServiceMock }
             ]
         });
     });

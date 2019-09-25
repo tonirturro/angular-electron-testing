@@ -3,10 +3,10 @@ import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 import { ISelectableOption } from "../../../common/rest";
-import { ELanguages } from "./definitions";
+import { ELanguages, ILocalizationService } from "./definitions";
 
 @Injectable()
-export class LocalizationService {
+export class LocalizationService implements ILocalizationService {
 
     private currentLanguageCode: string = "";
     private readonly languageSubject: Subject<any> = new Subject<any>();

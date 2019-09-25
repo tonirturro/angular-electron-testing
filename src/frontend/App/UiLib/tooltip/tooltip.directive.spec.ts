@@ -1,10 +1,10 @@
-import { ComponentFixture, TestBed, ComponentFixtureAutoDetect } from "@angular/core/testing";
+import { Component, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { BrowserDynamicTestingModule } from "@angular/platform-browser-dynamic/testing";
 
 import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { CustomMatchers } from "../../../../../test/CustomMatchers";
-import { TooltipDirectiveTestComponent } from "./test/tooltip-directive-test.component";
 import { NgbTooltipConfig } from "./tooltip-config.service";
 import { NgbTooltipWindowComponent } from "./tooltip.component";
 import { NgbTooltipDirective } from "./tooltip.directive";
@@ -398,3 +398,103 @@ describe("ngb-tooltip", () => {
         });
     });
 });
+
+@Component({
+    selector: "test-cmpt",
+    template: `
+        <div id="basic"
+             ngbTooltip="Great tip!"
+             (shown)="shown()"
+             (hidden)="hidden()"
+             #basicTooltip="ngbTooltip"></div>
+
+        <ng-template #t>Hello, {{name}}!</ng-template>
+        <div id="template" [ngbTooltip]="t"></div>
+
+        <div id="customClass"
+             ngbTooltip="Great tip!"
+             tooltipClass="my-custom-class"></div>
+
+        <div id="undefined" [ngbTooltip]="notExisting"></div>
+
+        <div id="binded" [ngbTooltip]="name"></div>
+
+        <div id="disabled"
+             ngbTooltip="Disabled!"
+             [disableTooltip]="true"></div>
+
+        <ng-template [ngIf]="show">
+            <div id="inTemplate" ngbTooltip="Great tip!"></div>
+        </ng-template>
+
+        <ng-template [ngIf]="show">
+            <div id="inTemplateWithTriggers"
+                 ngbTooltip="Great tip!"
+                 triggers="manual"
+                 #t="ngbTooltip"
+                 (mouseenter)="t.open()">
+            </div>
+        </ng-template>
+
+        <div id="placement"
+             ngbTooltip="Great tip!"
+             [placement]="placement"></div>
+
+        <div id="triggerStandard"
+             ngbTooltip="Great tip!"
+             triggers="click"></div>
+
+        <div id="triggerNoStandard"
+             ngbTooltip="Great tip!"
+             triggers="mouseenter:click"></div>
+
+        <div id="triggerMultiple"
+             ngbTooltip="Great tip!"
+             triggers="mouseenter:mouseleave click"></div>
+
+        <div id="triggerManual"
+             ngbTooltip="Great tip!"
+             triggers="manual"
+             #t1="ngbTooltip"></div>
+        <button id="triggerManualTroggle" (click)="t1.toggle()">T</button>
+        <button id="triggerManualOpen" (click)="t1.open()">O</button>
+        <button id="triggerManualClose"(click)="t1.close()">C</button>
+
+        <div id="bodyContainer"
+             *ngIf="show"
+             ngbTooltip="Great tip!"
+             container="body"></div>
+
+        <div id="emitEvents"
+             ngbTooltip="Great tip!"
+             triggers="click"
+             (shown)="shown()"
+             (hidden)="hidden()"
+             #emitEventsTooltip="ngbTooltip"></div>
+
+        <ng-template #tpl>
+             <div ngbTooltip="Great tip!"></div>
+        </ng-template>
+        <button id="createAndDestroy" (click)="createAndDestroyTplWithATooltip(tpl)"></button>
+    `
+})
+class TooltipDirectiveTestComponent {
+    public name = "World";
+    public show = true;
+    public placement: any = "auto";
+
+    @ViewChild("basicTooltip") public tooltip: NgbTooltipDirective;
+    @ViewChild("emitEventsTooltip") public tooltipReport: NgbTooltipDirective;
+
+    constructor(private vcRef: ViewContainerRef) { }
+
+    // tslint:disable-next-line: no-empty
+    public shown() { }
+    // tslint:disable-next-line: no-empty
+    public hidden() { }
+
+    public createAndDestroyTplWithATooltip(tpl: TemplateRef<any>) {
+        this.vcRef.createEmbeddedView(tpl, {}, 0);
+        this.vcRef.remove(0);
+    }
+}

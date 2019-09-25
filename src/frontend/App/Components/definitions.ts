@@ -1,3 +1,6 @@
+import { Observable } from "rxjs";
+import { ISelectableOption } from "../../../common/rest";
+
 export enum EModals {
     Confimation = "confirmation",
     Settings = "settings"
@@ -22,4 +25,13 @@ export interface ILanguageParam {
 
 export interface IDeviceSelection {
     deviceId: number;
+}
+
+export interface ILocalizationService {
+    language$: Observable<any>;
+    closeMessage: Observable<string>;
+    deviceName: Observable<string>;
+    deleteDeviceMessage: Observable<string>;
+    setLanguage(language: ELanguages);
+    getLocalizedCapability(capability: ISelectableOption): Observable<ISelectableOption>;
 }
