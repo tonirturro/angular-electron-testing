@@ -72,7 +72,13 @@
                       "karmaConfig": "test/karma.conf.js",
                       "styles": [],
                       "scripts": [],
-                      "assets": []  
+                      "assets": [],
+                      "codeCoverageExclude": [
+                        "src/frontend/**/*.mock.ts",
+                        "src/frontend/App/Services/log.service.ts",
+                        "src/frontend/App/Services/application.service.ts",
+                        "src/frontend/App/UiLib/util/*.ts"
+                      ]  
                     }                
                 }
             }

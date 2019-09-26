@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr 
+        <tr id="page"
             [ngClass]="{'item-selected' : isSelected(page.id)}"
             *ngFor="let page of pages" 
             (click)="selectPage($event, page.id)">

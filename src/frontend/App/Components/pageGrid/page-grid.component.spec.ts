@@ -1,10 +1,12 @@
+import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { of, Subject } from "rxjs";
 import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { PageFields } from "../../../../common/model";
-import { ISelectableOption } from "../../../../common/rest";
+import { IPage, ISelectableOption } from "../../../../common/rest";
 import { DataService } from "../../Services/data.service";
 import { DataServiceMock } from "../../Services/data.service.mock";
 import { NgbTooltipDirective } from "../../UiLib";
@@ -17,26 +19,23 @@ describe("Given a page grid component", () => {
 
     configureTestSuite();
 
-    const fakeMouseEvent: any = {
-        ctrlKey: false,
-        srcElement: {
-            attributes: {
-                getNamedItem: () => false
-            }
-        }
-    };
+    const DeviceId = 1;
+    const pages: IPage[] = [
+        { id: 1, deviceId: DeviceId, pageSize: "A0", printQuality: "Fast", mediaType: "Plain", destination: "Basket" },
+        { id: 2, deviceId: DeviceId, pageSize: "A0", printQuality: "Fast", mediaType: "Plain", destination: "Basket" },
+        { id: 3, deviceId: DeviceId, pageSize: "A0", printQuality: "Fast", mediaType: "Plain", destination: "Basket" },
+        { id: 4, deviceId: DeviceId, pageSize: "A0", printQuality: "Fast", mediaType: "Plain", destination: "Basket" }
+    ];
     const capabilities: ISelectableOption[] = [
         {
             label: "capabilityLabel",
             value: "0"
         }
     ];
-    const selectedPage: any = {
-        id: 1
-    };
     const NewValue = "1";
     let fixture: ComponentFixture<PageGridComponent>;
-    let element: Element;
+    let element: DebugElement;
+    let pageElements: DebugElement[];
     let component: PageGridComponent;
     let localizationService: ILocalizationService;
     let updatePageMock: jasmine.Spy;
@@ -60,7 +59,8 @@ describe("Given a page grid component", () => {
     });
 
     beforeEach(() => {
-        const dataService = TestBed.get(DataService);
+        const dataService = TestBed.get(DataService) as DataService;
+        spyOnProperty(dataService, "pages").and.returnValue(pages);
         updatePageMock = spyOn(dataService, "updatePageField");
         getCapabilitiesMock = spyOn(dataService, "getCapabilities");
         getCapabilitiesMock.and.returnValue(of(capabilities));
@@ -72,10 +72,11 @@ describe("Given a page grid component", () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(PageGridComponent);
-        element = fixture.nativeElement;
+        element = fixture.debugElement;
         component = fixture.componentInstance;
+        component.selectedDeviceId = DeviceId.toString();
         fixture.detectChanges();
-        component.selectPage(fakeMouseEvent, selectedPage.id );
+        pageElements = element.queryAll(By.css("#page"));
     });
 
     afterAll(() => {
@@ -83,7 +84,7 @@ describe("Given a page grid component", () => {
     });
 
     it("When created Then it has the html defined", () => {
-        expect(element.innerHTML).toBeDefined();
+        expect((element.nativeElement as Element).innerHTML).toBeTruthy();
     });
 
     it("When the component has been initialized Then it observes localization changes", () => {
@@ -97,34 +98,46 @@ describe("Given a page grid component", () => {
             expect(getCapabilitiesMock).toHaveBeenCalledWith(PageFields.Destination);
             expect(getLocalizedCapabilityMock).toHaveBeenCalledWith(capabilities[0]);
             expect(getLocalizedCapabilityMock).toHaveBeenCalledTimes(3);
-        });
+    });
+
+    it("When the component has been initialized Then it displays the pages from the model", () => {
+        expect(pageElements.length).toEqual(pages.length);
+    });
 
     it("When changing page size Then the corresponding update model call is made", () => {
+        (pageElements[0].nativeElement as HTMLElement).click();
+
         component.updatePageSize(NewValue);
 
         expect(updatePageMock)
-            .toHaveBeenCalledWith(PageFields.PageSize, [selectedPage.id], NewValue);
+            .toHaveBeenCalledWith(PageFields.PageSize, [ pages[0].id ], NewValue);
     });
 
     it("When changing print quality Then the corresponding update model call is made", () => {
+        (pageElements[0].nativeElement as HTMLElement).click();
+
         component.updatePrintQuality(NewValue);
 
         expect(updatePageMock)
-            .toHaveBeenCalledWith(PageFields.PrintQuality, [ selectedPage.id ], NewValue);
+            .toHaveBeenCalledWith(PageFields.PrintQuality, [ pages[0].id ], NewValue);
     });
 
     it("When changing media type Then the corresponding update model call is made", () => {
+        (pageElements[0].nativeElement as HTMLElement).click();
+
         component.updateMediaType(NewValue);
 
         expect(updatePageMock)
-            .toHaveBeenCalledWith(PageFields.MediaType, [ selectedPage.id ], NewValue);
+            .toHaveBeenCalledWith(PageFields.MediaType, [ pages[0].id ], NewValue);
     });
 
     it("When changing destination Then the corresponding update model call is made", () => {
+        (pageElements[0].nativeElement as HTMLElement).click();
+
         component.updateDestination(NewValue);
 
         expect(updatePageMock)
-            .toHaveBeenCalledWith(PageFields.Destination, [ selectedPage.id ], NewValue);
+            .toHaveBeenCalledWith(PageFields.Destination, [ pages[0].id ], NewValue);
     });
 
     it("When changing language Then the capabilities are updated", () => {

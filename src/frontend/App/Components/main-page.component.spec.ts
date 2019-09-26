@@ -94,6 +94,7 @@ describe("Given a main page component", () => {
     let deleteDeviceSpy: jasmine.Spy;
     let closeMessageSpy: jasmine.Spy;
     let closeSpy: jasmine.Spy;
+    let devicesSpy: jasmine.Spy;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -128,7 +129,8 @@ describe("Given a main page component", () => {
         const stateService: StateService = TestBed.get(StateService);
         goSpy = spyOn(stateService, "go");
         const dataService: DataService = TestBed.get(DataService);
-        spyOnProperty(dataService, "devices", "get").and.returnValue(devices);
+        devicesSpy = spyOnProperty(dataService, "devices", "get");
+        devicesSpy.and.returnValue(devices);
         addNewDeviceSpy = spyOn(dataService, "addNewDevice");
         deleteDeviceSpy = spyOn(dataService, "deleteDevice");
         component.selectedDeviceId = devices[0].id;
@@ -187,7 +189,7 @@ describe("Given a main page component", () => {
         toolbar.editPages();
         fixture.detectChanges();
 
-        expect(component.editingDevices).toBeFalsy();
+        expect(toolbar.editingDevices).toBeFalsy();
         expect(goSpy).toHaveBeenCalledWith("pages", expectedDeviceSelection);
     });
 
@@ -212,7 +214,39 @@ describe("Given a main page component", () => {
         expect(goSpy).toHaveBeenCalledWith("device", expectedDeviceSelection);
     });
 
-    it("When adding a device Then the data service is called with thee localized name", () => {
+    it("When the device id is invalid Then the first device is selected", () => {
+        component.selectedDeviceId = -1;
+        fixture.detectChanges();
+
+        expect(devicePanel.selectedDeviceId).toBe(devices[0].id);
+    });
+
+    it("When the device id does not exist Then the first device is selected", () => {
+        component.selectedDeviceId = devices[2].id + 1;
+        fixture.detectChanges();
+
+        expect(devicePanel.selectedDeviceId).toBe(devices[0].id);
+    });
+
+    it("When the device id does not exist and there is no devices Then the pages view is selected", () => {
+        devicesSpy.and.returnValue([]);
+
+        component.selectedDeviceId =  devices[2].id + 1;
+        fixture.detectChanges();
+
+        expect(goSpy).toHaveBeenCalledWith("pages", { deviceId: -1 });
+    });
+
+    it("When selecting a wrong device id The the view is not changed and the first device is selected", () => {
+        goSpy.calls.reset();
+
+        devicePanel.selectDevice(-1);
+
+        expect(devicePanel.selectedDeviceId).toBe(devices[0].id);
+        expect(goSpy).not.toHaveBeenCalled();
+    });
+
+    it("When adding a device Then the data service is called with the localized name", () => {
         const expectedName = "DEVICE";
         deviceNameSpy.and.returnValue(of(expectedName));
 

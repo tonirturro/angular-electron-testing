@@ -32,7 +32,6 @@ export class PageGridComponent implements OnInit, OnDestroy {
     private localizationSubscription: Subscription;
     private readonly defaultPageSizes: ISelectableOption[] = [];
     private cachedPageSizes: ISelectableOption[];
-    private readingPageSizes: boolean;
 
     constructor(
         private dataService: DataService,
@@ -45,6 +44,11 @@ export class PageGridComponent implements OnInit, OnDestroy {
         this.localizationSubscription = this.localizationService.language$.subscribe(() => {
             this.loadLocalizedCapabilities();
         });
+        this.dataService
+            .getCapabilities(PageFields.PageSize)
+            .subscribe((capabilities) => {
+                this.cachedPageSizes = capabilities;
+            });
     }
 
     public ngOnDestroy(): void {
@@ -55,13 +59,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
      * Retrieves the model pages
      */
     public get pages(): IPage[] {
-        const devicePages: IPage[] = [];
-        this.dataService.pages.forEach((page) => {
-            if (page.deviceId === this.deviceId) {
-                devicePages.push(page);
-            }
-        });
-        return devicePages;
+         return this.dataService.pages.filter((page) => page.deviceId === this.deviceId);
     }
 
     /**
@@ -70,15 +68,6 @@ export class PageGridComponent implements OnInit, OnDestroy {
     public get PageSizeOptions(): ISelectableOption[] {
         if (this.cachedPageSizes) {
             return this.cachedPageSizes;
-        }
-
-        if (!this.readingPageSizes) {
-            this.readingPageSizes = true;
-            this.dataService
-                .getCapabilities(PageFields.PageSize)
-                .subscribe((capabilities) => {
-                    this.cachedPageSizes = capabilities;
-                });
         }
 
         return this.defaultPageSizes;
