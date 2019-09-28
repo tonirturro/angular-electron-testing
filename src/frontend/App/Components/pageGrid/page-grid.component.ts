@@ -145,7 +145,9 @@ export class PageGridComponent implements OnInit, OnDestroy {
         // Do dot break multiselection if clicked on selection
         const isSelector = (event.target as Element).tagName === "SELECT";
         if (isSelector) {
-            this.updatePageSelection(pageId, true);
+            if (!this.selectedPages.some((id) => pageId === id )) {
+                this.updatePageSelection(pageId, true);
+            }
             return;
         }
 
@@ -171,7 +173,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
         if (multiselection && this.selectedPages.length > 0) {
             const indexOfSelectedPage = this.selectedPages.indexOf(pageId);
             const currentSelected = this.selectedPages.concat();
-            if (indexOfSelectedPage < 1) {
+            if (indexOfSelectedPage < 0) {
                 currentSelected.push(pageId);
             } else {
                 currentSelected.splice(indexOfSelectedPage, 1);

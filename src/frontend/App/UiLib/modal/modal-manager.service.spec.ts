@@ -23,6 +23,7 @@ describe("Given a modal manager service", () => {
         size: "sm"
     } as IModalSettings;
     const dialogResult = { data : "hello" };
+    const dialogReject = "message";
     const modalRef = {
         // tslint:disable-next-line: no-empty
         close: () => {},
@@ -36,7 +37,8 @@ describe("Given a modal manager service", () => {
 
     beforeEach(() => {
         const modalService = new ModalServiceMock();
-        openModalMock = spyOn(modalService, "open").and.returnValue(modalRef);
+        openModalMock = spyOn(modalService, "open");
+        openModalMock.and.returnValue(modalRef);
         service = new ModalManagerService(modalService as any);
     });
 
@@ -104,6 +106,20 @@ describe("Given a modal manager service", () => {
                 });
             });
 
+            it("When it returns an observable Then the observable returns the dialog rejection", (done) => {
+                const modalRefReject = { ...modalRef };
+                modalRefReject.result = Promise.reject(dialogReject);
+                openModalMock.and.returnValue(modalRefReject);
+
+                service.push(dialogName).subscribe(
+                    // tslint:disable-next-line: no-empty
+                    () => {},
+                    (rejection) => {
+                        expect(rejection).toEqual(dialogReject);
+                        done();
+                    });
+            });
+
             it("When params are pushed Then the dialog is opened with this params", () => {
                 const params = {
                     id: 1
@@ -117,19 +133,29 @@ describe("Given a modal manager service", () => {
     });
 
     describe("And poping one dialog", () => {
+
+        let closeMock: jasmine.Spy;
+
         beforeEach(() => {
             service.register(dialogName, {
                 content: dialogContent,
                 settings: dialogSettings
             } as IModalDescription);
+
+            closeMock = spyOn(modalRef, "close");
         });
 
         it("When there is a dialog opened Then it closes the dialog", () => {
-            const closeMock = spyOn(modalRef, "close");
             service.push(dialogName);
             service.pop();
 
             expect(closeMock).toHaveBeenCalled();
+        });
+
+        it("When there is no dialog opened Then no dialog is closed", () => {
+            service.pop();
+
+            expect(closeMock).not.toHaveBeenCalled();
         });
     });
 

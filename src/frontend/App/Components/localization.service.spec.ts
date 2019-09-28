@@ -11,6 +11,7 @@ describe("Given a localization service", () => {
     configureTestSuite();
 
     const expectedEnglishLanguageCode = "en";
+    const expecteKlingonLanguageCode = "kl";
     const capability: ISelectableOption = {
         label: "Name",
         value: "0"
@@ -48,8 +49,20 @@ describe("Given a localization service", () => {
         setLanguageMock = spyOn(translateService, "use").and.returnValue(of({}));
     });
 
-    it("When setting the language Then the current language is set", () => {
+    it("When setting the English language Then the current language is English", () => {
         service.setLanguage(ELanguages.English);
+
+        expect(setLanguageMock).toHaveBeenCalledWith(expectedEnglishLanguageCode);
+    });
+
+    it("When setting the Klingon language Then the current language is Klingon", () => {
+        service.setLanguage(ELanguages.Klingon);
+
+        expect(setLanguageMock).toHaveBeenCalledWith(expecteKlingonLanguageCode);
+    });
+
+    it("When setting the Invalid language Then the current language is English", () => {
+        service.setLanguage(100 as ELanguages);
 
         expect(setLanguageMock).toHaveBeenCalledWith(expectedEnglishLanguageCode);
     });

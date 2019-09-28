@@ -79,13 +79,4 @@ export class ModalManagerService {
             reference.close();
         }
     }
-
-    /**
-     * Closes the last opened dialog and open a new dialog at the same stack level
-     * @param name the name of the dialog to be opened
-     */
-    public replaceTop(name: string, params?: any) {
-        this.pop();
-        this.push(name, params);
-    }
 }

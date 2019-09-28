@@ -223,6 +223,17 @@ describe("Given a page grid component", () => {
         expect(page2.classList).toContain("item-selected");
     });
 
+    it("When clicking on a selector and the page is already selected Then the page keeps seleted", () => {
+        const page = pageElements[0].nativeElement as HTMLElement;
+        const pageSelector = pageElements[0].query(By.css("#pageSize")).nativeElement as HTMLSelectElement;
+
+        pageSelector.click();
+        pageSelector.click();
+        fixture.detectChanges();
+
+        expect(page.classList).toContain("item-selected");
+    });
+
     it("When clicking at the add button Then a new page is requested to the model", () => {
         const addPageButton = element.query(By.css("#addPage")).nativeElement as HTMLElement;
 

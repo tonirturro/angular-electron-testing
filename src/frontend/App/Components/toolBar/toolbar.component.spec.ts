@@ -1,19 +1,17 @@
+import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { configureTestSuite } from "../../../../../test/configureTestSuite";
 import { NgbTooltipDirective } from "../../UiLib";
 import { ToolBarComponent } from "./toolbar.component";
 
-enum ButtonPosition {
-    AddDevice, EditDevice, EditPages, Settings, Close
-}
-
 describe("Given a toolbar component", () => {
 
     configureTestSuite();
 
-    let element: Element;
+    let element: DebugElement;
     let component: ToolBarComponent;
     let fixture: ComponentFixture<ToolBarComponent>;
 
@@ -31,7 +29,7 @@ describe("Given a toolbar component", () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(ToolBarComponent);
         component = fixture.componentInstance;
-        element = fixture.nativeElement;
+        element = fixture.debugElement;
         fixture.detectChanges();
     });
 
@@ -40,12 +38,12 @@ describe("Given a toolbar component", () => {
     });
 
     it("When created Then it has the html defined", () => {
-        expect(element.innerHTML).toBeDefined();
+        expect((element.nativeElement as Element).innerHTML).toBeDefined();
     });
 
     it("When clicking on add device button Then the action is reported", () => {
         let addButtonClick = false;
-        const addButton = element.querySelectorAll("button")[ButtonPosition.AddDevice];
+        const addButton = element.query(By.css("#addDevice")).nativeElement as HTMLButtonElement;
         component.onAddDevice.subscribe(() => {
             addButtonClick = true;
         });
@@ -59,7 +57,7 @@ describe("Given a toolbar component", () => {
         component.editingDevices = false;
         fixture.detectChanges();
         let editDevicesButtonClick = false;
-        const editDevicesButton = element.querySelectorAll("button")[ButtonPosition.EditDevice];
+        const editDevicesButton = element.query(By.css("#editDevice")).nativeElement as HTMLButtonElement;
         component.onEditDevices.subscribe(() => {
             editDevicesButtonClick = true;
         });
@@ -73,7 +71,7 @@ describe("Given a toolbar component", () => {
         component.editingDevices = true;
         fixture.detectChanges();
         let editDevicesButtonClick = false;
-        const editDevicesButton = element.querySelectorAll("button")[ButtonPosition.EditDevice];
+        const editDevicesButton = element.query(By.css("#editDevice")).nativeElement as HTMLButtonElement;
         component.onEditPages.subscribe(() => {
             editDevicesButtonClick = true;
         });
@@ -87,7 +85,7 @@ describe("Given a toolbar component", () => {
         component.editingDevices = true;
         fixture.detectChanges();
         let editPagesButtonClick = false;
-        const editPagesButton = element.querySelectorAll("button")[ButtonPosition.EditPages];
+        const editPagesButton = element.query(By.css("#editPages")).nativeElement as HTMLButtonElement;
         component.onEditPages.subscribe(() => {
             editPagesButtonClick = true;
         });
@@ -101,7 +99,7 @@ describe("Given a toolbar component", () => {
         component.editingDevices = false;
         fixture.detectChanges();
         let editPagesButtonClick = false;
-        const editPagesButton = element.querySelectorAll("button")[ButtonPosition.EditPages];
+        const editPagesButton =  element.query(By.css("#editPages")).nativeElement as HTMLButtonElement;
         component.onEditPages.subscribe(() => {
             editPagesButtonClick = true;
         });
@@ -113,7 +111,7 @@ describe("Given a toolbar component", () => {
 
     it("When clicking on settings button Then the action is reported", () => {
         let settingsButtonClick = false;
-        const settingsButton = element.querySelectorAll("button")[ButtonPosition.Settings];
+        const settingsButton = element.query(By.css("#settings")).nativeElement as HTMLButtonElement;
         component.onSettings.subscribe(() => {
             settingsButtonClick = true;
         });
@@ -125,7 +123,7 @@ describe("Given a toolbar component", () => {
 
     it("When clicking on close button Then the action is reported", () => {
         let closeButtonClick = false;
-        const closeButton = element.querySelectorAll("button")[ButtonPosition.Close];
+        const closeButton = element.query(By.css("#close")).nativeElement as HTMLButtonElement;
         component.onClose.subscribe(() => {
             closeButtonClick = true;
         });
