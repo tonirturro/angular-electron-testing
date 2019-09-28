@@ -6,7 +6,8 @@
             <td [translate]>STR_Media_Type</td>
             <td [translate]>STR_Destination</td>
             <td>
-                <button 
+                <button
+                    id="addPage" 
                     type="button" 
                     class="btn btn-primary" 
                     ngbTooltip="{{ addTooltip | translate}}" 
@@ -23,27 +24,28 @@
             *ngFor="let page of pages" 
             (click)="selectPage($event, page.id)">
             <td>
-                <select [(ngModel)]="page.pageSize" (change)="updatePageSize(page.pageSize)">
+                <select id="pageSize" [(ngModel)]="page.pageSize" (change)="updatePageSize(page.pageSize)">
                     <option *ngFor="let size of PageSizeOptions" value="{{ size.value }}">{{ size.label }}</option>
                 </select>
             </td>
             <td>
-                <select [(ngModel)]="page.printQuality" (change)="updatePrintQuality(page.printQuality)">
+                <select id="printQuality" [(ngModel)]="page.printQuality" (change)="updatePrintQuality(page.printQuality)">
                     <option *ngFor="let quality of PrintQualityOptions" value="{{ quality.value }}">{{ quality.label }}</option>
                 </select>
             </td>
             <td>
-                <select [(ngModel)]="page.mediaType" (change)="updateMediaType(page.mediaType)">
+                <select id="mediaType" [(ngModel)]="page.mediaType" (change)="updateMediaType(page.mediaType)">
                     <option *ngFor="let medium of MediaTypeOptions" value="{{ medium.value }}">{{ medium.label }}</option>
                 </select>
             </td>
             <td>
-                <select [(ngModel)]="page.destination" (change)="updateDestination(page.destination)">
+                <select id="destination" [(ngModel)]="page.destination" (change)="updateDestination(page.destination)">
                     <option *ngFor="let destination of DestinationOptions" value="{{ destination.value }}">{{ destination.label }}</option>
                 </select>
             </td>
             <td>
-                <button 
+                <button
+                    id="pageDelete"
                     type="button"
                     class="btn btn-danger" 
                     ngbTooltip="{{ deleteTooltip | translate}}" 

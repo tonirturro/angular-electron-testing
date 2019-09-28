@@ -30,8 +30,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
     private localizedMediaTypeCapabilities: ISelectableOption[] = [];
     private localizedDestinationCapabilities: ISelectableOption[] = [];
     private localizationSubscription: Subscription;
-    private readonly defaultPageSizes: ISelectableOption[] = [];
-    private cachedPageSizes: ISelectableOption[];
+    private cachedPageSizes: ISelectableOption[] = [];
 
     constructor(
         private dataService: DataService,
@@ -66,11 +65,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
      * Get the available page options
      */
     public get PageSizeOptions(): ISelectableOption[] {
-        if (this.cachedPageSizes) {
             return this.cachedPageSizes;
-        }
-
-        return this.defaultPageSizes;
     }
 
     /**
@@ -114,9 +109,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
      * @param newValue is the new page size value
      */
     public updatePageSize(newValue: string): void {
-        if (this.selectedPages.length > 0) {
-            this.dataService.updatePageField(PageFields.PageSize, this.selectedPages, newValue);
-        }
+        this.dataService.updatePageField(PageFields.PageSize, this.selectedPages, newValue);
     }
 
     /**
@@ -124,9 +117,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
      * @param newValue is the new print quality value
      */
     public updatePrintQuality(newValue: string): void {
-        if (this.selectedPages.length > 0) {
-            this.dataService.updatePageField(PageFields.PrintQuality, this.selectedPages, newValue);
-        }
+        this.dataService.updatePageField(PageFields.PrintQuality, this.selectedPages, newValue);
     }
 
     /**
@@ -134,9 +125,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
      * @param newValue is the new media type value
      */
     public updateMediaType(newValue: string): void {
-        if (this.selectedPages.length > 0) {
-            this.dataService.updatePageField(PageFields.MediaType, this.selectedPages, newValue);
-        }
+        this.dataService.updatePageField(PageFields.MediaType, this.selectedPages, newValue);
     }
 
     /**
@@ -144,9 +133,7 @@ export class PageGridComponent implements OnInit, OnDestroy {
      * @param newValue is the new media type destination value
      */
     public updateDestination(newValue: string): void {
-        if (this.selectedPages.length > 0) {
-            this.dataService.updatePageField(PageFields.Destination, this.selectedPages, newValue);
-        }
+        this.dataService.updatePageField(PageFields.Destination, this.selectedPages, newValue);
     }
 
     /**
@@ -154,17 +141,16 @@ export class PageGridComponent implements OnInit, OnDestroy {
      * @param event is the event generating the click
      * @param page is the selected page
      */
-    public selectPage(event: MouseEvent, pageId: number): void {
-        // Do dot break multiselection if clicked on control
-        const isSelector = event.srcElement.attributes.getNamedItem("(change)");
-        const isButton = event.srcElement.attributes.getNamedItem("(click)");
-        if (isSelector || isButton) {
+    public selectPage(event: Event, pageId: number): void {
+        // Do dot break multiselection if clicked on selection
+        const isSelector = (event.target as Element).tagName === "SELECT";
+        if (isSelector) {
             this.updatePageSelection(pageId, true);
             return;
         }
 
         // Set selection
-        const isMultiSelection = event.ctrlKey;
+        const isMultiSelection = (event as MouseEvent).ctrlKey;
         this.updatePageSelection(pageId, isMultiSelection);
     }
 
