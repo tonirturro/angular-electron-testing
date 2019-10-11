@@ -1,3 +1,5 @@
+import { expect } from "chai";
+import { IpcRendererEvent } from "electron";
 import * as ipcMock from "electron-ipc-mock";
 import { stub } from "sinon";
 import { IPage } from "../../common/rest";
@@ -19,15 +21,15 @@ describe("Given an API", () => {
         data = new Data();
         api = new Api(
             ipcMain,
-            ipcRenderer,
             data
         );
     });
 
-    it("Should return the existing pages", () => {
+    it("Should return the existing pages", (done) => {
         stub(data, "getPages").returns(expectedPages);
-        ipcRenderer.once("pages", (pages) => {
-            expect(pages).toEqual(expectedPages);
+        ipcRenderer.once("pages", (event: IpcRendererEvent, pages: IPage[]) => {
+            expect(pages).equals(expectedPages);
+            done();
         });
 
         ipcRenderer.send("pages");
