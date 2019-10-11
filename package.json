@@ -50,7 +50,7 @@
     "@types/jasmine": "2.8.8",
     "@types/jasminewd2": "2.0.3",
     "@types/jquery": "3.3.28",
-    "@types/sinon": "2.2.2",
+    "@types/sinon": "7.5.0",
     "chai": "3.5.0",
     "chai-http": "3.0.0",
     "electron-connect": "0.6.3",
