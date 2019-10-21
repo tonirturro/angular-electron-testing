@@ -1,8 +1,15 @@
 import { Injectable } from "@angular/core";
 import { IpcRenderer } from "electron";
 import { Observable, of, Subject } from "rxjs";
-import { IDevice, IPage, ISelectableOption } from "../../../common/rest";
+import {
+    IDevice,
+    INewDeviceParams,
+    IPage,
+    ISelectableOption,
+    IUpdateDeviceParams,
+    IUpdateParams } from "../../../common/rest";
 import { IDataService } from "./definitions";
+import { LogService } from "./log.service";
 
 interface ICapabilitiesDictionary {
     [key: string]: ISelectableOption[];
@@ -25,8 +32,11 @@ export class DataService implements IDataService {
     /**
      * Initializes a new instance from the Data class.
      * @param ipcRenderer the inter process communication with backend
+     * @param log the front end logger
      */
-    constructor(private ipcRenderer: IpcRenderer) {}
+    constructor(
+        private ipcRenderer: IpcRenderer,
+        private log: LogService) {}
 
     /**
      * Gets the current cached pages
@@ -83,12 +93,92 @@ export class DataService implements IDataService {
         this.ipcRenderer.send("pages:add", deviceId);
     }
 
-    // tslint:disable: no-empty
-    public addNewDevice(name: string) {}
-    public deletePage(idToDelete: number) {}
-    public deleteDevice(idToDelete: number) {}
-    public updateDeviceName(id: number, newValue: string) {}
-    public updatePageField(field: string, pages: number[], newValue: string) {}
+    /**
+     * Request a new device
+     * @param name The name for the new device
+     */
+    public addNewDevice(name: string) {
+        this.ipcRenderer.once("devices:add", () => {
+            this.updateDevices();
+        });
+
+        this.ipcRenderer.send("devices:add", { name } as INewDeviceParams);
+    }
+
+    /**
+     * Delete an existing page
+     * @param idToDelete is the id for the page to be deleted
+     */
+    public deletePage(idToDelete: number) {
+        this.ipcRenderer.once("pages:delete", (event: any, success: boolean) => {
+            if (success) {
+                this.updatePages();
+            } else {
+                this.log.error(`Error while deleting page id: ${idToDelete}`);
+            }
+        });
+
+        this.ipcRenderer.send("pages:delete", idToDelete);
+    }
+
+    /**
+     * Delete an existing device
+     * @param idToDelete is the id for the device to be deleted
+     */
+    public deleteDevice(idToDelete: number) {
+        this.ipcRenderer.once("devices:delete", (event: any, success: boolean) => {
+            if (success) {
+                this.updateDevices();
+            } else {
+                this.log.error(`Error while deleting device id: ${idToDelete}`);
+            }
+        });
+
+        this.ipcRenderer.send("devices:delete", idToDelete);
+    }
+
+    /**
+     * Updates the name for a device
+     * @param id the id for the device to be updated
+     * @param newValue the new value for the update
+     */
+    public updateDeviceName(id: number, newValue: string) {
+        const data: IUpdateDeviceParams = { id, newValue };
+
+        this.ipcRenderer.once("devices:update", (event: any, success: boolean) => {
+            if (success) {
+                this.updateDevices();
+            } else {
+                this.log.error(`Error while deleting device id: ${id}`);
+            }
+        });
+
+        this.ipcRenderer.send("devices:update", data);
+    }
+
+    /**
+     * Updates a particular field for a set of pages
+     * @param field The field to be updated
+     * @param pages The pages to be updated
+     * @param newValue The new value to be set
+     */
+    public updatePageField(field: string, pages: number[], newValue: string) {
+        const update = { pages, newValue } as IUpdateParams;
+
+        this.ipcRenderer.once("pages:update", (event: any, success: boolean) => {
+            if (success) {
+                this.updatePages();
+            } else {
+                this.log.error(`Error while updating pages : ${ pages.toString() }`);
+            }
+        });
+
+        this.ipcRenderer.send("pages:update", field, update);
+    }
+
+    /**
+     * Private methods
+     */
 
     private updatePages() {
         this.ipcRenderer.once("pages:get", (event: any, pages: IPage[]) => {
@@ -113,7 +203,7 @@ export class DataService implements IDataService {
             capabilitiesResult.complete();
         });
 
-        // this.ipcRenderer.send("devices:capabilities", capability);
+        this.ipcRenderer.send("devices:capabilities", capability);
 
         return capabilitiesResult;
     }
