@@ -1,4 +1,4 @@
-import { fakeAsync, tick } from "@angular/core/testing";
+import { async, fakeAsync, tick } from "@angular/core/testing";
 import { IpcMain, IpcMainEvent, IpcRenderer } from "electron";
 import * as ipcMock from "electron-ipc-mock";
 import { PageFields } from "../../../common/model";
@@ -118,68 +118,78 @@ describe("Given a data service", () => {
         expect(options).toEqual(devicePageOptionsResponse);
     }));
 
-    it("Can add pages", (done) => {
+    it("Can add pages", async(() => {
         ipcMain.once("pages:add", (event: IpcMainEvent, deviceId: number) => {
             expect(deviceId).toEqual(ExpectedDeviceId);
-            done();
         });
 
         service.addNewPage(ExpectedDeviceId);
-    });
+    }));
 
-    it("When adding a page Then the page list is updated", (done) => {
+    it("When adding a page Then the page list is updated", fakeAsync(() => {
+        let updated = false;
         ipcMain.once("pages:add", (event: IpcMainEvent) => {
             event.sender.send("pages:add", true);
         });
 
         ipcMain.once("pages:get", () => {
-            done();
+            updated = true;
         });
 
         service.addNewPage(ExpectedDeviceId);
-    });
+        tick();
 
-    it("Can add devices", (done) => {
+        expect(updated).toBeTruthy();
+    }));
+
+    it("Can add devices", async(() => {
         ipcMain.once("devices:add", (event: IpcMainEvent, newDevice: INewDeviceParams) => {
             expect(newDevice.name).toEqual(ExpectedDeviceName);
-            done();
         });
 
         service.addNewDevice(ExpectedDeviceName);
-    });
+    }));
 
-    it("When adding a device Then the device list is updated", (done) => {
+    it("When adding a device Then the device list is updated", fakeAsync(() => {
+        let updated = false;
         ipcMain.once("devices:add", (event: IpcMainEvent) => {
             event.sender.send("devices:add", true);
         });
 
         ipcMain.once("devices:get", (event: IpcMainEvent) => {
-            done();
+            updated = true;
         });
 
         service.addNewDevice(ExpectedDeviceName);
-    });
+        tick();
 
-    it("Can delete pages", (done) => {
+        expect(updated).toBeTruthy();
+    }));
+
+    it("Can delete pages", async(() => {
         ipcMain.on("pages:delete", (event: IpcMainEvent, pageIdToDelete: number) => {
             expect(pageIdToDelete).toEqual(ExpectedPageId);
-            done();
+
         });
 
         service.deletePage(ExpectedPageId);
-    });
+    }));
 
-    it("When deleting an existing page Then the page list is updated", (done) => {
+    it("When deleting an existing page Then the page list is updated", fakeAsync(() => {
+        let updated = false;
         ipcMain.on("pages:delete", (event: IpcMainEvent) => {
             event.sender.send("pages:delete", true);
         });
 
         ipcMain.once("pages:get", () => {
-            done();
+            updated = true;
         });
 
         service.deletePage(ExpectedPageId);
-    });
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
 
     it("When trying to delete a non existing page Then an error is logged", fakeAsync(() => {
         const logErrorSpy = spyOn(logger, "error");
@@ -193,26 +203,29 @@ describe("Given a data service", () => {
         expect(logErrorSpy).toHaveBeenCalled();
     }));
 
-    it("Can delete devices", (done) => {
+    it("Can delete devices", async(() => {
         ipcMain.on("devices:delete", (event: IpcMainEvent, deviceIdToDelete: number) => {
             expect(deviceIdToDelete).toEqual(ExpectedDeviceId);
-            done();
         });
 
         service.deleteDevice(ExpectedDeviceId);
-    });
+    }));
 
-    it("When deleting an existing device Then the devices list is updated", (done) => {
+    it("When deleting an existing device Then the devices list is updated", fakeAsync(() => {
+        let updated = false;
         ipcMain.on("devices:delete", (event: IpcMainEvent) => {
             event.sender.send("devices:delete", true);
         });
 
         ipcMain.once("devices:get", () => {
-            done();
+            updated = true;
         });
 
         service.deleteDevice(ExpectedDeviceId);
-    });
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
 
     it("When trying to delete a non existing device Then an error is logged", fakeAsync(() => {
         const logErrorSpy = spyOn(logger, "error");
@@ -226,29 +239,32 @@ describe("Given a data service", () => {
         expect(logErrorSpy).toHaveBeenCalled();
     }));
 
-    it("Can update devices", (done) => {
+    it("Can update devices", async(() => {
         const expectedNewDevicename = "new name";
 
         ipcMain.on("devices:update", (event: IpcMainEvent, updateParams: IUpdateDeviceParams) => {
             expect(updateParams.id).toEqual(ExpectedDeviceId);
             expect(updateParams.newValue).toEqual(expectedNewDevicename);
-            done();
         });
 
         service.updateDeviceName(ExpectedDeviceId, expectedNewDevicename);
-    });
+    }));
 
-    it("When updating an existing device Then the devices list is updated", (done) => {
+    it("When updating an existing device Then the devices list is updated", fakeAsync(() => {
+        let updated = false;
         ipcMain.on("devices:update", (event: IpcMainEvent) => {
             event.sender.send("devices:update", true);
         });
 
         ipcMain.once("devices:get", () => {
-            done();
+            updated = true;
         });
 
         service.updateDeviceName(ExpectedDeviceId, "any");
-    });
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
 
     it("When trying to update a non existing device Then an error is logged", fakeAsync(() => {
         const logErrorSpy = spyOn(logger, "error");
@@ -262,7 +278,7 @@ describe("Given a data service", () => {
         expect(logErrorSpy).toHaveBeenCalled();
     }));
 
-    it("Can update pages", (done) => {
+    it("Can update pages", async(() => {
         const expectedPageNewvalue = "new value";
         const pageList = [ 1, 2, 3, 4 ];
         const pageField = PageFields.PageSize;
@@ -271,23 +287,26 @@ describe("Given a data service", () => {
             expect(field).toEqual(field);
             expect(updateParams.pages).toEqual(pageList);
             expect(updateParams.newValue).toEqual(expectedPageNewvalue);
-            done();
         });
 
         service.updatePageField(pageField, pageList, expectedPageNewvalue);
-    });
+    }));
 
-    it("When updating an existing pages Then the page list is updated", (done) => {
+    it("When updating an existing pages Then the page list is updated", fakeAsync(() => {
+        let updated = false;
         ipcMain.on("pages:update", (event: IpcMainEvent) => {
             event.sender.send("pages:update", true);
         });
 
         ipcMain.once("pages:get", () => {
-            done();
+            updated = true;
         });
 
         service.updatePageField(PageFields.Destination, [ 1 ], "any");
-    });
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
 
     it("When trying to update a non existing page Then an error is logged", fakeAsync(() => {
         const logErrorSpy = spyOn(logger, "error");
