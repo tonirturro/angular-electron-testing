@@ -24,7 +24,14 @@ app.on("window-all-closed", () => {
 });
 
 app.on("ready", () => {
-    mainWindow = new BrowserWindow({ width: 1280, height: 720, frame: false });
+    mainWindow = new BrowserWindow({
+        frame: false,
+        height: 720,
+        webPreferences: {
+            nodeIntegration: true
+        },
+        width: 1280
+     });
     const url = `file://${app.getAppPath()}/index.htm`;
     mainWindow.loadURL(url);
     mainWindow.on("closed", () => {

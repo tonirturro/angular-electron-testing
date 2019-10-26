@@ -1,38 +1,23 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
+import { IpcRenderer } from "electron";
 import { Observable, of, Subject } from "rxjs";
 import {
-    IDeleteDeviceResponse,
-    IDeletePageResponse,
     IDevice,
     INewDeviceParams,
     IPage,
     ISelectableOption,
     IUpdateDeviceParams,
-    IUpdateParams,
-    IUpdateResponse
-} from "../../../common/rest";
+    IUpdateParams } from "../../../common/rest";
 import { IDataService } from "./definitions";
+import { ElectronService } from "./electron.service";
 import { LogService } from "./log.service";
 
 interface ICapabilitiesDictionary {
     [key: string]: ISelectableOption[];
 }
 
-interface IGettingCapabilitiesDictionary {
-    [key: string]: boolean;
-}
-
 @Injectable()
 export class DataService implements IDataService {
-
-    /**
-     * Internal constants
-     */
-    private readonly REST_URL = "http://localhost:3000/REST";
-    private readonly httpOptions = {
-        headers: new HttpHeaders({ "Content-Type": "application/json" })
-    };
 
     /**
      * Internal properties
@@ -44,14 +29,19 @@ export class DataService implements IDataService {
     private defaultCachedDevices: IDevice[] = [];
     private isGettingDevices = false;
     private cachedCapabilities: ICapabilitiesDictionary = {};
+    private ipcRenderer: IpcRenderer;
 
     /**
      * Initializes a new instance from the Data class.
-     * @param http the aAngular htt service
+     * @param electronService wrapper for electron internals
+     * @param log the front end logger
      */
     constructor(
-        private http: HttpClient,
-        private log: LogService) { }
+        private electronService: ElectronService,
+        private log: LogService,
+        private ngZone: NgZone) {
+        this.ipcRenderer = this.electronService.ipcRenderer;
+    }
 
     /**
      * Gets the current cached pages
@@ -101,15 +91,11 @@ export class DataService implements IDataService {
      * Request a new page
      */
     public addNewPage(deviceId: number) {
-        this.http.post<IUpdateResponse>(`${this.getUrl("pages")}${deviceId}`, {}).subscribe((response) => {
-            if (response.success) {
-                this.updatePages();
-            } else {
-                this.log.error(`Error while adding new page to device : ${deviceId}`);
-            }
-        }, () => {
-            this.log.error(`Failure to post ${this.getUrl("pages")}${deviceId}`);
+        this.ipcRenderer.once("pages:add", () => {
+            this.updatePages();
         });
+
+        this.ipcRenderer.send("pages:add", deviceId);
     }
 
     /**
@@ -117,15 +103,11 @@ export class DataService implements IDataService {
      * @param name The name for the new device
      */
     public addNewDevice(name: string) {
-        this.http.put<IUpdateResponse>(this.getUrl("devices"), { name } as INewDeviceParams).subscribe((response) => {
-            if (response.success) {
-                this.updateDevices();
-            } else {
-                this.log.error("Error while adding new device");
-            }
-        }, () => {
-            this.log.error(`Failure to put ${this.getUrl("devices")}`);
+        this.ipcRenderer.once("devices:add", () => {
+            this.updateDevices();
         });
+
+        this.ipcRenderer.send("devices:add", { name } as INewDeviceParams);
     }
 
     /**
@@ -133,15 +115,15 @@ export class DataService implements IDataService {
      * @param idToDelete is the id for the page to be deleted
      */
     public deletePage(idToDelete: number) {
-        this.http.delete<IDeletePageResponse>(`${this.getUrl("pages")}${idToDelete}`).subscribe((response) => {
-            if (response.success) {
+        this.ipcRenderer.once("pages:delete", (event: any, success: boolean) => {
+            if (success) {
                 this.updatePages();
             } else {
                 this.log.error(`Error while deleting page id: ${idToDelete}`);
             }
-        }, () => {
-            this.log.error(`Failure to delete ${this.getUrl("pages")}${idToDelete}`);
         });
+
+        this.ipcRenderer.send("pages:delete", idToDelete);
     }
 
     /**
@@ -149,13 +131,15 @@ export class DataService implements IDataService {
      * @param idToDelete is the id for the device to be deleted
      */
     public deleteDevice(idToDelete: number) {
-        this.http.delete<IDeleteDeviceResponse>(`${this.getUrl("devices")}${idToDelete}`).subscribe((response) => {
-            if (response.success) {
+        this.ipcRenderer.once("devices:delete", (event: any, success: boolean) => {
+            if (success) {
                 this.updateDevices();
+            } else {
+                this.log.error(`Error while deleting device id: ${idToDelete}`);
             }
-        }, () => {
-            this.log.error(`Failure to delete ${this.getUrl("devices")}${idToDelete}`);
         });
+
+        this.ipcRenderer.send("devices:delete", idToDelete);
     }
 
     /**
@@ -165,98 +149,67 @@ export class DataService implements IDataService {
      */
     public updateDeviceName(id: number, newValue: string) {
         const data: IUpdateDeviceParams = { id, newValue };
-        this.http.put<IUpdateResponse>(`${this.getUrl("devices/name")}`, data, this.httpOptions)
-            .subscribe((response) => {
-                if (response.success) {
-                    this.updateDevices();
-                } else {
-                    this.log.error(`Error while updating device id : ${id}`);
-                }
-            }, () => {
-                this.log.error(`Failure to put ${this.getUrl("devices/name")}`);
-            });
+
+        this.ipcRenderer.once("devices:update", (event: any, success: boolean) => {
+            if (success) {
+                this.updateDevices();
+            } else {
+                this.log.error(`Error while deleting device id: ${id}`);
+            }
+        });
+
+        this.ipcRenderer.send("devices:update", data);
     }
 
     /**
      * Updates a particular field for a set of pages
      * @param field The field to be updated
      * @param pages The pages to be updated
-     * @param newValueToSet The new value to be set
+     * @param newValue The new value to be set
      */
     public updatePageField(field: string, pages: number[], newValue: string) {
-        this.performUpdate(field, { pages, newValue } as IUpdateParams);
+        const update = { pages, newValue } as IUpdateParams;
+
+        this.ipcRenderer.once("pages:update", (event: any, success: boolean) => {
+            if (success) {
+                this.updatePages();
+            } else {
+                this.log.error(`Error while updating pages : ${ pages.toString() }`);
+            }
+        });
+
+        this.ipcRenderer.send("pages:update", field, update);
     }
 
     /**
-     * Composes the url for an api
-     * @param the api to be composed
+     * Private methods
      */
-    private getUrl(api: string): string {
-        return `${this.REST_URL}/${api}/`;
-    }
 
-    /**
-     * Gets pages from backend
-     */
     private updatePages() {
-        this.http.get<IPage[]>(this.getUrl("pages")).subscribe((pages) => {
-            this.cachedPages = pages;
-        },
-            () => {
-                this.isGettingPages = false;
-                this.log.error(`Failure to get ${this.getUrl("pages")}`);
-            });
+        this.ipcRenderer.once("pages:get", (event: any, pages: IPage[]) => {
+            this.ngZone.run(() => { this.cachedPages = pages; });
+        });
+        this.ipcRenderer.send("pages:get");
     }
 
-    /**
-     * Gets devices from backend
-     */
     private updateDevices() {
-        this.http.get<IDevice[]>(this.getUrl("devices")).subscribe((devices) => {
-            this.cachedDevices = devices;
-        },
-            () => {
-                this.log.error(`Failure to get ${this.getUrl("devices")}`);
-                this.isGettingDevices = false;
-            });
+        this.ipcRenderer.once("devices:get", (event: any, devices: IDevice[]) => {
+            this.ngZone.run(() => { this.cachedDevices = devices; });
+        });
+        this.ipcRenderer.send("devices:get");
     }
 
-    /**
-     * Query the options available for a particular device capability
-     * @param capability the capability to be queried
-     */
     private getCapabilitiesFromModel(capability: string): Observable<ISelectableOption[]> {
         const capabilitiesResult = new Subject<ISelectableOption[]>();
 
-        this.http.get<ISelectableOption[]>(`${this.getUrl("deviceOptions")}${capability}`)
-            .subscribe((options) => {
-                this.cachedCapabilities[capability] = options;
-                capabilitiesResult.next(options);
-                capabilitiesResult.complete();
-            },
-                (error) => {
-                    this.log.error(`Failure to get ${capability} device capability`);
-                    capabilitiesResult.error(error);
-                });
+        this.ipcRenderer.once("devices:capabilities", (event: any, options: ISelectableOption[]) => {
+            this.cachedCapabilities[capability] = options;
+            capabilitiesResult.next(options);
+            capabilitiesResult.complete();
+        });
+
+        this.ipcRenderer.send("devices:capabilities", capability);
 
         return capabilitiesResult;
-    }
-
-    /**
-     * Executes the update for the designated field and with the corresponding parameters
-     * @param field is the field to be updated
-     * @param params are the params for the update
-     */
-    private performUpdate(field: string, params: IUpdateParams) {
-        this.http.put<IUpdateResponse>(`${this.getUrl("pages")}${field}`, params, this.httpOptions)
-            .subscribe((response) => {
-                if (response.success) {
-                    this.updatePages();
-                } else {
-                    this.log.error(`Error while updating field ${field} for page id: ${params.pages[0]}`);
-                }
-            }, () => {
-                this.log.error(`Failure to put ${this.getUrl("pages")}${field}`);
-            });
     }
 }

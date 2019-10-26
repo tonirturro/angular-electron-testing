@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 
 import { ApplicationService } from "./application.service";
 import { DataService } from "./data.service";
+import { ElectronService } from "./electron.service";
 import { LogService } from "./log.service";
 
 @NgModule({
@@ -11,6 +12,7 @@ import { LogService } from "./log.service";
      ],
     providers: [
         ApplicationService,
+        ElectronService,
         DataService,
         LogService
     ]

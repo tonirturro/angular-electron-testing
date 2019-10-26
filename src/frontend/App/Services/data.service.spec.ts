@@ -1,41 +1,21 @@
-import { HttpClientTestingModule, HttpTestingController, TestRequest } from "@angular/common/http/testing";
-import { TestBed } from "@angular/core/testing";
-
-import { AppServicesModule } from ".";
-import { configureTestSuite } from "../../../../test/configureTestSuite";
+import { NgZone } from "@angular/core";
+import { async, fakeAsync, tick } from "@angular/core/testing";
+import { IpcMain, IpcMainEvent } from "electron";
+import * as ipcMock from "electron-ipc-mock";
 import { PageFields } from "../../../common/model";
 import {
-    IDeleteDeviceResponse,
-    IDeletePageResponse,
     IDevice,
+    INewDeviceParams,
     IPage,
     ISelectableOption,
     IUpdateDeviceParams,
-    IUpdateParams,
-    IUpdateResponse
-} from "../../../common/rest";
+    IUpdateParams } from "../../../common/rest";
 import { DataService } from "./data.service";
+import { ElectronService } from "./electron.service";
 import { LogService } from "./log.service";
 
 describe("Given a data service", () => {
 
-    configureTestSuite();
-
-    const restUrl = "http://localhost:3000/REST";
-    const pagesUrl = `${restUrl}/pages/`;
-    const devicesUrl = `${restUrl}/devices/`;
-    const deviceOptionsUrl = `${restUrl}/deviceOptions/`;
-    const mockErrorResponse = { status: 400, statusText: "Bad Request" };
-    const data = "Invalid request parameters";
-    const fieldToSet = "anyField";
-    const expectedDevices: IDevice[] = [{
-        id: 1,
-        name: "Device 2"
-    }];
-    const deleteDeviceResponse: IDeleteDeviceResponse = {
-        deletedDeviceId: 1,
-        success: true
-    };
     const expectedPages: IPage[] = [{
         destination: "5",
         deviceId: 1,
@@ -44,232 +24,309 @@ describe("Given a data service", () => {
         pageSize: "2",
         printQuality: "3",
     }];
-    const response: IUpdateResponse = {
-        success: true
-    };
-    const deletePageResponse: IDeletePageResponse = {
-        deletedPageId: 1,
-        success: true
-    };
-    const updatePageParams = { pages: [10], newValue: "0" } as IUpdateParams;
-    const ExpectedDeletePageCall = `${pagesUrl}${deletePageResponse.deletedPageId}`;
-    const ExpectedUpdatePageCall = `${pagesUrl}${fieldToSet}`;
-    const expectedDeleteDeviceCall = `${devicesUrl}${deleteDeviceResponse.deletedDeviceId}`;
-    const ExpectedUpdateDeviceCall = `${devicesUrl}name/`;
+    const expectedDevices: IDevice[] = [{
+        id: 1,
+        name: "Device 2"
+    }];
+    const devicePageOptionsResponse: ISelectableOption[] = [
+        { value: "0", label: "label0 "}
+    ];
     const ExpectedDeviceId = 1;
-    const ExpectedDeviceValue = "any";
-    const ExpectedParams: IUpdateDeviceParams = { id: ExpectedDeviceId, newValue: ExpectedDeviceValue };
-
+    const ExpectedPageId = 2;
+    const ExpectedDeviceName = "name";
+    let electronServiceMock: ElectronService;
+    let zoneMock: NgZone;
+    let logger: LogService;
     let service: DataService;
-    let httpMock: HttpTestingController;
-    let logService: LogService;
-    let request: TestRequest;
+    let ipcMain: IpcMain;
 
-    beforeAll(() => {
-        TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule, AppServicesModule],
-        });
+    beforeEach(() => {
+        const mock = ipcMock();
+        ipcMain = mock.ipcMain;
+        electronServiceMock = {
+            ipcRenderer: mock.ipcRenderer
+        } as ElectronService;
+        zoneMock = {
+            run: (task) => {
+                task();
+            }
+        } as NgZone;
     });
 
     beforeEach(() => {
-        service = TestBed.get(DataService);
-        logService = TestBed.get(LogService);
-        httpMock = TestBed.get(HttpTestingController);
-        request = null;
-        spyOn(logService, "error");
+        logger = new LogService();
+        service = new DataService(electronServiceMock, logger, zoneMock);
     });
 
-    afterEach(() => {
-        httpMock.verify();
+    it("Should be created", () => {
+        expect(service).toBeTruthy();
     });
 
-    /************************************************************************
-     * Pages
-     ************************************************************************/
-    it("When is working Then it exposes the available pages", () => {
-        let pages = service.pages;
-        request = httpMock.expectOne(pagesUrl);
-        request.flush(expectedPages);
-        pages = service.pages;
-
-        expect(request.request.method).toEqual("GET");
-        expect(pages.length).toBe(expectedPages.length);
+    it("When the pages are not yet fetched they should retrive an empty array", () => {
+        expect(service.pages.length).toEqual(0);
     });
 
-    it("When getting pages query fails Then the log is called", () => {
-        const pages = service.pages;
-        httpMock.expectOne(pagesUrl).error(new ErrorEvent("Query failed"));
-
-        expect(logService.error).toHaveBeenCalled();
-    });
-
-    it("Can add pages", () => {
-        service.addNewPage(ExpectedDeviceId);
-
-        request = httpMock.expectOne(`${pagesUrl}${ExpectedDeviceId}`);
-        expect(request.request.method).toEqual("POST");
-    });
-
-    it("When adding pages Then it refreshes the page list", () => {
-        service.addNewPage(ExpectedDeviceId);
-
-        request = httpMock.expectOne(`${pagesUrl}${ExpectedDeviceId}`);
-        request.flush(response);
-
-        request = httpMock.expectOne(pagesUrl);
-        expect(request.request.method).toEqual("GET");
-    });
-
-    it("Can delete pages", () => {
-        service.deletePage(deletePageResponse.deletedPageId);
-
-        request = httpMock.expectOne(ExpectedDeletePageCall);
-        expect(request.request.method).toEqual("DELETE");
-    });
-
-    it("When deleting pages Then the page list is reloaded", () => {
-        service.deletePage(deletePageResponse.deletedPageId);
-
-        request = httpMock.expectOne(ExpectedDeletePageCall);
-        request.flush(deletePageResponse);
-
-        request = httpMock.expectOne(pagesUrl);
-        expect(request.request.method).toEqual("GET");
-    });
-
-    it("Can update page field", () => {
-        service.updatePageField(fieldToSet, updatePageParams.pages, updatePageParams.newValue);
-
-        request = httpMock.expectOne(ExpectedUpdatePageCall);
-        expect(request.request.method).toEqual("PUT");
-        expect(request.request.body).toEqual(updatePageParams);
-    });
-
-    it("When updating pages Then the page list is reloaded", () => {
-        service.updatePageField(fieldToSet, updatePageParams.pages, updatePageParams.newValue);
-        httpMock.expectOne(ExpectedUpdatePageCall).flush(response);
-
-        request = httpMock.expectOne(pagesUrl);
-        expect(request.request.method).toEqual("GET");
-    });
-
-    /***********************************************************************************************
-     * Devices
-     ***********************************************************************************************/
-    it("When it reads devices and they are not queried Then they are queried", () => {
-        const devices = service.devices;
-
-        request = httpMock.expectOne(devicesUrl);
-        expect(request.request.method).toEqual("GET");
-        expect(devices.length).toBe(0);
-    });
-
-    it("When it reads the devices while they are queried Then they are not queried again", () => {
-        let devices = service.devices;
-        request = httpMock.expectOne(devicesUrl);
-        devices = service.devices;
-
-        httpMock.expectNone(devicesUrl);
-        expect(devices.length).toBe(0);
-    });
-
-    it("When it read the the devices if the query fails the log service is called", () => {
-        const devices = service.devices;
-        httpMock.expectOne(devicesUrl).flush(data, mockErrorResponse);
-
-        expect(logService.error).toHaveBeenCalled();
-    });
-
-    it("When it reads the devices after a query failed Then they are queried again", () => {
-        let devices = service.devices;
-        httpMock.expectOne(devicesUrl).flush(data, mockErrorResponse);
-        devices = service.devices;
-
-        request = httpMock.expectOne(devicesUrl);
-        expect(devices.length).toBe(0);
-    });
-
-    it("When read devices Then the ones from the backend are read", () => {
-        let devices = service.devices;
-        request = httpMock.expectOne(devicesUrl);
-        request.flush(expectedDevices);
-        devices = service.devices;
-
-        expect(devices).toEqual(expectedDevices);
-    });
-
-    it("Can add devices", () => {
-        service.addNewDevice("name");
-
-        request = httpMock.expectOne(devicesUrl);
-        expect(request.request.method).toEqual("PUT");
-    });
-
-    it("When adding devices Then the device list is reloaded", () => {
-        service.addNewDevice("name");
-        httpMock.expectOne(devicesUrl).flush(response);
-
-        request = httpMock.expectOne(devicesUrl);
-        expect(request.request.method).toEqual("GET");
-    });
-
-    it("Can delete devices", () => {
-        service.deleteDevice(deleteDeviceResponse.deletedDeviceId);
-
-        request = httpMock.expectOne(expectedDeleteDeviceCall);
-        expect(request.request.method).toEqual("DELETE");
-    });
-
-    it("When deleting devices Then the device list is reloaded", () => {
-        service.deleteDevice(deleteDeviceResponse.deletedDeviceId);
-        httpMock.expectOne(expectedDeleteDeviceCall).flush(deleteDeviceResponse);
-
-        request = httpMock.expectOne(devicesUrl);
-        expect(request.request.method).toEqual("GET");
-    });
-
-    it("Can update device name", () => {
-        service.updateDeviceName(ExpectedDeviceId, ExpectedDeviceValue);
-
-        request = httpMock.expectOne(ExpectedUpdateDeviceCall);
-        expect(request.request.method).toEqual("PUT");
-        expect(request.request.body).toEqual(ExpectedParams);
-    });
-
-    it("When Updating name then the devices are reloaded", () => {
-        service.updateDeviceName(ExpectedDeviceId, ExpectedDeviceValue);
-        httpMock.expectOne(ExpectedUpdateDeviceCall).flush(response);
-
-        request = httpMock.expectOne(devicesUrl);
-        expect(request.request.method).toEqual("GET");
-    });
-
-    it("Can read device page options", (done) => {
-        const devicePageOptionsResponse: ISelectableOption[] = [
-            { value: "0", label: "label0 "}
-        ];
-
-        service.getCapabilities(PageFields.PageSize).subscribe((capabilities) => {
-            expect(capabilities).toEqual(devicePageOptionsResponse);
-            done();
+    it("When the pages are fetched they should be retrieved", fakeAsync(() => {
+        ipcMain.once("pages:get", (event: IpcMainEvent) => {
+            event.sender.send("pages:get", expectedPages);
         });
-        request = httpMock.expectOne(`${deviceOptionsUrl}${PageFields.PageSize}`);
-        request.flush(devicePageOptionsResponse);
+
+        const initialPages = service.pages;
+        tick();
+        const finalPages = service.pages;
+
+        expect(initialPages.length).toEqual(0);
+        expect(finalPages).toEqual(expectedPages);
+    }));
+
+    it("When the devices are not yet fetched they should retrive an empty array", () => {
+        expect(service.devices.length).toEqual(0);
     });
 
-    it("Can cache device page options", (done) => {
-        const devicePageOptionsResponse: ISelectableOption[] = [
-            { value: "0", label: "label0 "}
-        ];
+    it("When the devices are fetched they should be retrived", fakeAsync(() => {
+        ipcMain.once("devices:get", (event: IpcMainEvent) => {
+            event.sender.send("devices:get", expectedDevices);
+        });
+
+        const initialDevices = service.devices;
+        tick();
+        const finalDevices = service.devices;
+
+        expect(initialDevices.length).toEqual(0);
+        expect(finalDevices).toEqual(expectedDevices);
+    }));
+
+    it("Can read device page options", fakeAsync(() => {
+        let options: ISelectableOption[];
+        ipcMain.once("devices:capabilities", (event: IpcMainEvent) => {
+            event.sender.send("devices:capabilities", devicePageOptionsResponse);
+        });
+
+        service.getCapabilities(PageFields.PageSize).subscribe((capabilityOptions) => {
+            options = capabilityOptions;
+        });
+
+        tick();
+
+        expect(options).toEqual(devicePageOptionsResponse);
+    }));
+
+    it("Can cache device page options", fakeAsync(() => {
+        let options: ISelectableOption[];
+        ipcMain.once("devices:capabilities", (event: IpcMainEvent) => {
+            event.sender.send("devices:capabilities", devicePageOptionsResponse);
+        });
 
         service.getCapabilities(PageFields.PageSize).subscribe();
-        request = httpMock.expectOne(`${deviceOptionsUrl}${PageFields.PageSize}`);
-        request.flush(devicePageOptionsResponse);
 
-        service.getCapabilities(PageFields.PageSize).subscribe((capabilities) => {
-            expect(capabilities).toEqual(devicePageOptionsResponse);
-            done();
+        tick();
+
+        service.getCapabilities(PageFields.PageSize).subscribe((capabilityOptions) => {
+            options = capabilityOptions;
         });
-    });
 
+        expect(options).toEqual(devicePageOptionsResponse);
+    }));
+
+    it("Can add pages", async(() => {
+        ipcMain.once("pages:add", (event: IpcMainEvent, deviceId: number) => {
+            expect(deviceId).toEqual(ExpectedDeviceId);
+        });
+
+        service.addNewPage(ExpectedDeviceId);
+    }));
+
+    it("When adding a page Then the page list is updated", fakeAsync(() => {
+        let updated = false;
+        ipcMain.once("pages:add", (event: IpcMainEvent) => {
+            event.sender.send("pages:add", true);
+        });
+
+        ipcMain.once("pages:get", () => {
+            updated = true;
+        });
+
+        service.addNewPage(ExpectedDeviceId);
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
+
+    it("Can add devices", async(() => {
+        ipcMain.once("devices:add", (event: IpcMainEvent, newDevice: INewDeviceParams) => {
+            expect(newDevice.name).toEqual(ExpectedDeviceName);
+        });
+
+        service.addNewDevice(ExpectedDeviceName);
+    }));
+
+    it("When adding a device Then the device list is updated", fakeAsync(() => {
+        let updated = false;
+        ipcMain.once("devices:add", (event: IpcMainEvent) => {
+            event.sender.send("devices:add", true);
+        });
+
+        ipcMain.once("devices:get", (event: IpcMainEvent) => {
+            updated = true;
+        });
+
+        service.addNewDevice(ExpectedDeviceName);
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
+
+    it("Can delete pages", async(() => {
+        ipcMain.on("pages:delete", (event: IpcMainEvent, pageIdToDelete: number) => {
+            expect(pageIdToDelete).toEqual(ExpectedPageId);
+
+        });
+
+        service.deletePage(ExpectedPageId);
+    }));
+
+    it("When deleting an existing page Then the page list is updated", fakeAsync(() => {
+        let updated = false;
+        ipcMain.on("pages:delete", (event: IpcMainEvent) => {
+            event.sender.send("pages:delete", true);
+        });
+
+        ipcMain.once("pages:get", () => {
+            updated = true;
+        });
+
+        service.deletePage(ExpectedPageId);
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
+
+    it("When trying to delete a non existing page Then an error is logged", fakeAsync(() => {
+        const logErrorSpy = spyOn(logger, "error");
+        ipcMain.on("pages:delete", (event: IpcMainEvent) => {
+            event.sender.send("pages:delete", false);
+        });
+
+        service.deletePage(99);
+        tick();
+
+        expect(logErrorSpy).toHaveBeenCalled();
+    }));
+
+    it("Can delete devices", async(() => {
+        ipcMain.on("devices:delete", (event: IpcMainEvent, deviceIdToDelete: number) => {
+            expect(deviceIdToDelete).toEqual(ExpectedDeviceId);
+        });
+
+        service.deleteDevice(ExpectedDeviceId);
+    }));
+
+    it("When deleting an existing device Then the devices list is updated", fakeAsync(() => {
+        let updated = false;
+        ipcMain.on("devices:delete", (event: IpcMainEvent) => {
+            event.sender.send("devices:delete", true);
+        });
+
+        ipcMain.once("devices:get", () => {
+            updated = true;
+        });
+
+        service.deleteDevice(ExpectedDeviceId);
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
+
+    it("When trying to delete a non existing device Then an error is logged", fakeAsync(() => {
+        const logErrorSpy = spyOn(logger, "error");
+        ipcMain.on("devices:delete", (event: IpcMainEvent) => {
+            event.sender.send("devices:delete", false);
+        });
+
+        service.deleteDevice(99);
+        tick();
+
+        expect(logErrorSpy).toHaveBeenCalled();
+    }));
+
+    it("Can update devices", async(() => {
+        const expectedNewDevicename = "new name";
+
+        ipcMain.on("devices:update", (event: IpcMainEvent, updateParams: IUpdateDeviceParams) => {
+            expect(updateParams.id).toEqual(ExpectedDeviceId);
+            expect(updateParams.newValue).toEqual(expectedNewDevicename);
+        });
+
+        service.updateDeviceName(ExpectedDeviceId, expectedNewDevicename);
+    }));
+
+    it("When updating an existing device Then the devices list is updated", fakeAsync(() => {
+        let updated = false;
+        ipcMain.on("devices:update", (event: IpcMainEvent) => {
+            event.sender.send("devices:update", true);
+        });
+
+        ipcMain.once("devices:get", () => {
+            updated = true;
+        });
+
+        service.updateDeviceName(ExpectedDeviceId, "any");
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
+
+    it("When trying to update a non existing device Then an error is logged", fakeAsync(() => {
+        const logErrorSpy = spyOn(logger, "error");
+        ipcMain.on("devices:update", (event: IpcMainEvent) => {
+            event.sender.send("devices:update", false);
+        });
+
+        service.updateDeviceName(99, "any");
+        tick();
+
+        expect(logErrorSpy).toHaveBeenCalled();
+    }));
+
+    it("Can update pages", async(() => {
+        const expectedPageNewvalue = "new value";
+        const pageList = [ 1, 2, 3, 4 ];
+        const pageField = PageFields.PageSize;
+
+        ipcMain.on("pages:update", (event: IpcMainEvent, field: string, updateParams: IUpdateParams) => {
+            expect(field).toEqual(field);
+            expect(updateParams.pages).toEqual(pageList);
+            expect(updateParams.newValue).toEqual(expectedPageNewvalue);
+        });
+
+        service.updatePageField(pageField, pageList, expectedPageNewvalue);
+    }));
+
+    it("When updating an existing pages Then the page list is updated", fakeAsync(() => {
+        let updated = false;
+        ipcMain.on("pages:update", (event: IpcMainEvent) => {
+            event.sender.send("pages:update", true);
+        });
+
+        ipcMain.once("pages:get", () => {
+            updated = true;
+        });
+
+        service.updatePageField(PageFields.Destination, [ 1 ], "any");
+        tick();
+
+        expect(updated).toBeTruthy();
+    }));
+
+    it("When trying to update a non existing page Then an error is logged", fakeAsync(() => {
+        const logErrorSpy = spyOn(logger, "error");
+        ipcMain.on("pages:update", (event: IpcMainEvent) => {
+            event.sender.send("pages:update", false);
+        });
+
+        service.updatePageField(PageFields.Destination, [ 99 ], "any");
+        tick();
+
+        expect(logErrorSpy).toHaveBeenCalled();
+    }));
 });

@@ -14,7 +14,7 @@
     "lint": "gulp tslint",
     "bundle": "gulp bundle"
   },
-  "description": "AngularJS to Angular migration spike",
+  "description": "Angular in Electron testing spike",
   "author": {
     "name": "angarcia"
   },
