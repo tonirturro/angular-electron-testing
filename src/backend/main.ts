@@ -2,23 +2,16 @@ import { app, BrowserWindow } from "electron";
 import { main } from "../backend/app";
 
 let mainWindow = null;
-
-/*
- * Backend startup
- */
-main.application.set("port", process.env.PORT || 3000);
-
-const server = main.application.listen(main.application.get("port"), () => {
-    // tslint:disable-next-line:no-console
-    console.log("Express server listening on port " + server.address().port);
-});
+let backend = main;
 
 /**
  * Quit the application if we are not in MacOS and all the windows are closed
  */
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
-        server.close();
+        if (backend) {
+            backend = null;
+        }
         app.quit();
     }
 });
