@@ -88,13 +88,13 @@ describe("Given an API", () => {
     it("Should get device capabilities", (done) => {
         const capabilityToRequest = PageFields.PageSize;
         ipcRenderer.once(
-            "devices:capabilities",
+            `devices:capabilities:${capabilityToRequest}`,
             (event: IpcRendererEvent, selectedCapabilities: ISelectableOption[]) => {
                 expect(selectedCapabilities).equals(capabilities.getCapabilities(capabilityToRequest));
                 done();
             });
 
-        ipcRenderer.send("devices:capabilities", capabilityToRequest);
+        ipcRenderer.send(`devices:capabilities:${capabilityToRequest}`, capabilityToRequest);
     });
 
     it("When deleting a page and the page exists then the api returns true", (done) => {

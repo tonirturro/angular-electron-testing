@@ -97,12 +97,13 @@ describe("Given a data service", () => {
     }));
 
     it("Can read device page options", fakeAsync(() => {
+        const capability = PageFields.PageSize;
         let options: ISelectableOption[];
-        ipcMain.once("devices:capabilities", (event: IpcMainEvent) => {
-            event.sender.send("devices:capabilities", devicePageOptionsResponse);
+        ipcMain.once(`devices:capabilities:${capability}`, (event: IpcMainEvent) => {
+            event.sender.send(`devices:capabilities:${capability}`, devicePageOptionsResponse);
         });
 
-        service.getCapabilities(PageFields.PageSize).subscribe((capabilityOptions) => {
+        service.getCapabilities(capability).subscribe((capabilityOptions) => {
             options = capabilityOptions;
         });
 
@@ -112,12 +113,13 @@ describe("Given a data service", () => {
     }));
 
     it("Can cache device page options", fakeAsync(() => {
+        const capability = PageFields.PageSize;
         let options: ISelectableOption[];
-        ipcMain.once("devices:capabilities", (event: IpcMainEvent) => {
-            event.sender.send("devices:capabilities", devicePageOptionsResponse);
+        ipcMain.once(`devices:capabilities:${capability}`, (event: IpcMainEvent) => {
+            event.sender.send(`devices:capabilities:${capability}`, devicePageOptionsResponse);
         });
 
-        service.getCapabilities(PageFields.PageSize).subscribe();
+        service.getCapabilities(capability).subscribe();
 
         tick();
 

@@ -24,7 +24,7 @@ export class Api {
       event.sender.send("pages:delete", data.deletePage(pageIdToDelete));
     });
 
-    ipcMain.on("pages:update", (event: IpcMainEvent, field: string, updateParams: IUpdateParams ) => {
+    ipcMain.on("pages:update", (event: IpcMainEvent, field: PageFields, updateParams: IUpdateParams ) => {
       let result = true;
       updateParams.pages.forEach((page) => {
         result = result && this.updatePage(page, field, data, updateParams.newValue);
@@ -46,8 +46,28 @@ export class Api {
       event.sender.send("devices:delete", data.deleteDevice(deviceIdToDelete));
     });
 
-    ipcMain.on("devices:capabilities", (event: IpcMainEvent, capability: string) => {
-      event.sender.send("devices:capabilities", capabilities.getCapabilities(capability));
+    ipcMain.on(`devices:capabilities:${PageFields.PageSize}`, (event: IpcMainEvent) => {
+      event.sender.send(
+        `devices:capabilities:${PageFields.PageSize}`,
+        capabilities.getCapabilities(PageFields.PageSize));
+    });
+
+    ipcMain.on(`devices:capabilities:${PageFields.PrintQuality}`, (event: IpcMainEvent) => {
+      event.sender.send(
+        `devices:capabilities:${PageFields.PrintQuality}`,
+        capabilities.getCapabilities(PageFields.PrintQuality));
+    });
+
+    ipcMain.on(`devices:capabilities:${PageFields.MediaType}`, (event: IpcMainEvent) => {
+      event.sender.send(
+        `devices:capabilities:${PageFields.MediaType}`,
+        capabilities.getCapabilities(PageFields.MediaType));
+    });
+
+    ipcMain.on(`devices:capabilities:${PageFields.Destination}`, (event: IpcMainEvent) => {
+      event.sender.send(
+        `devices:capabilities:${PageFields.Destination}`,
+        capabilities.getCapabilities(PageFields.Destination));
     });
 
     ipcMain.on("devices:update", (event: IpcMainEvent, updateParams: IUpdateDeviceParams) => {
@@ -57,7 +77,7 @@ export class Api {
     });
   }
 
-  private updatePage(page: number, field: string, data: Data, newValue: string): boolean {
+  private updatePage(page: number, field: PageFields, data: Data, newValue: string): boolean {
     switch (field) {
       case PageFields.PageSize:
         return data.updatePageSize(page, newValue);

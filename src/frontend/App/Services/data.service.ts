@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from "@angular/core";
 import { IpcRenderer } from "electron";
 import { Observable, of, Subject } from "rxjs";
+import { PageFields } from "../../../common/model";
 import {
     IDevice,
     INewDeviceParams,
@@ -79,7 +80,7 @@ export class DataService implements IDataService {
      * Get the options available for a particular device capability
      * @param capability the capability to be queried
      */
-    public getCapabilities(capability: string): Observable<ISelectableOption[]> {
+    public getCapabilities(capability: PageFields): Observable<ISelectableOption[]> {
         if (this.cachedCapabilities[capability]) {
             return of(this.cachedCapabilities[capability]);
         }
@@ -167,7 +168,7 @@ export class DataService implements IDataService {
      * @param pages The pages to be updated
      * @param newValue The new value to be set
      */
-    public updatePageField(field: string, pages: number[], newValue: string) {
+    public updatePageField(field: PageFields, pages: number[], newValue: string) {
         const update = { pages, newValue } as IUpdateParams;
 
         this.ipcRenderer.once("pages:update", (event: any, success: boolean) => {
@@ -199,16 +200,16 @@ export class DataService implements IDataService {
         this.ipcRenderer.send("devices:get");
     }
 
-    private getCapabilitiesFromModel(capability: string): Observable<ISelectableOption[]> {
+    private getCapabilitiesFromModel(capability: PageFields): Observable<ISelectableOption[]> {
         const capabilitiesResult = new Subject<ISelectableOption[]>();
 
-        this.ipcRenderer.once("devices:capabilities", (event: any, options: ISelectableOption[]) => {
+        this.ipcRenderer.once(`devices:capabilities:${capability}`, (event: any, options: ISelectableOption[]) => {
             this.cachedCapabilities[capability] = options;
             capabilitiesResult.next(options);
             capabilitiesResult.complete();
         });
 
-        this.ipcRenderer.send("devices:capabilities", capability);
+        this.ipcRenderer.send(`devices:capabilities:${capability}`);
 
         return capabilitiesResult;
     }
